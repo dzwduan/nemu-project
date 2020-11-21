@@ -9,10 +9,12 @@
     _Log("\33[1;34m[%s,%d,%s] " format "\33[0m\n", \
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
+//fflush清空缓冲
+//_va_args_ https://blog.csdn.net/bat67/article/details/77542165
 #define Assert(cond, ...) \
   do { \
     if (!(cond)) { \
-      fflush(stdout); \
+      fflush(stdout); \              
       fprintf(stderr, "\33[1;31m"); \
       fprintf(stderr, __VA_ARGS__); \
       fprintf(stderr, "\33[0m\n"); \
@@ -28,4 +30,4 @@
 
 #define TODO() panic("please implement me")
 
-#endif
+#endif      

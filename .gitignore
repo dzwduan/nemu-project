@@ -9,4 +9,6 @@
 !README.md
 !.gitignore
 !init.sh
+!nemu/src/isa/mips32/*
 /fceux-am
+

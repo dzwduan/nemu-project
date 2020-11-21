@@ -40,14 +40,18 @@ static inline long load_img() {
   }
 
   FILE *fp = fopen(img_file, "rb");
+  //注意Assert Log可以传参
   Assert(fp, "Can not open '%s'", img_file);
 
   Log("The image is %s", img_file);
 
+  //设置返回地址为fp文件末尾
   fseek(fp, 0, SEEK_END);
+  //获取指针当前位置即size
   long size = ftell(fp);
-
+  //找到文件开头
   fseek(fp, 0, SEEK_SET);
+  //从fp读取数据到guest_to_host(IMAGE_START)
   int ret = fread(guest_to_host(IMAGE_START), size, 1, fp);
   assert(ret == 1);
 
@@ -65,6 +69,9 @@ static inline void parse_args(int argc, char *argv[]) {
     {0          , 0                , NULL,  0 },
   };
   int o;
+  //https://www.jianshu.com/p/80cdbf718916
+  //字母后面带:说明必须带参数
+  //optarg是额外参数
   while ( (o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1) {
     switch (o) {
       case 'b': batch_mode = true; break;
@@ -82,7 +89,7 @@ static inline void parse_args(int argc, char *argv[]) {
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
         printf("\n");
-        exit(0);
+        exit(0);  //进程结束
     }
   }
 }

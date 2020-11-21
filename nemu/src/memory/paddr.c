@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+// 128*1024*1024*8/4096 = 128*1024*2
 static uint8_t pmem[PMEM_SIZE] PG_ALIGN = {};
 
 void* guest_to_host(paddr_t addr) { return &pmem[addr]; }
@@ -17,6 +18,7 @@ void init_mem() {
   srand(time(0));
   uint32_t *p = (uint32_t *)pmem;
   int i;
+  //对每个字节赋值
   for (i = 0; i < PMEM_SIZE / sizeof(p[0]); i ++) {
     p[i] = rand();
   }

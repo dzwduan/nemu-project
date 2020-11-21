@@ -14,7 +14,7 @@
 #define Assert(cond, ...) \
   do { \
     if (!(cond)) { \
-      fflush(stdout); \              
+      fflush(stdout); \
       fprintf(stderr, "\33[1;31m"); \
       fprintf(stderr, __VA_ARGS__); \
       fprintf(stderr, "\33[0m\n"); \

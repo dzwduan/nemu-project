@@ -8,7 +8,13 @@ const char *regsl[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 }; //reg是数组
 
+#define REG_NUM (sizeof(regsl)/sizeof(regsl[0]))
+
 void isa_reg_display() {
+  int i=0;
+  for(;i<REG_NUM;i++){
+    printf("%s   : %d\n",regsl[i],reg_l(i));
+  }
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

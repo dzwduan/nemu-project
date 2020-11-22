@@ -6,6 +6,12 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include <memory/vaddr.h>
+#include <isa/riscv32.h>
+
+
+extern void isa_reg_display(void);
+
 void cpu_exec(uint64_t);
 int is_batch_mode();
 
@@ -38,6 +44,52 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_help(char *args);
+//PA1.1
+static int cmd_step(char *args);
+
+static int cmd_reg(char *args);
+
+static int cmd_scan(char *args);
+
+static int cmd_step(char *args){
+  char *arg = strtok(NULL, " ");
+  if(!arg){
+    cpu_exec(1);
+  }
+  else{
+    int num = 1;
+    sscanf(arg, "%d",&num);
+    cpu_exec(num);
+  }
+  return 0;
+}
+
+static int cmd_reg(char *args){
+  isa_reg_display();
+  return 1;
+}
+
+//TODO
+static int cmd_scan(char *args){
+  
+  int num,addr;
+  sscanf(args, "%d 0x%x", &num,&addr);
+
+  //一次读32bit
+  int i,j;
+
+  for(i=0;i<num;i++){
+    printf("0x%x   :  ",addr);
+    for(j=0;j<4;j++){
+      word_t data = vaddr_read(addr,1);
+      printf("%02x ",data);
+      addr++;
+    }
+      printf("\n");
+  }
+  return 1;
+}
+
 
 static struct {
   char *name;
@@ -49,6 +101,9 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
+  { "s", "Exec one step",cmd_step},
+  { "reg","Info of registers",cmd_reg},
+  { "x", "Scan memory",cmd_scan},
 
 };
 

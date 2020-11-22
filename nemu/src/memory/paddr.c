@@ -25,6 +25,7 @@ void init_mem() {
 #endif
 }
 
+//riscv base 0x8000 0000  
 static inline bool in_pmem(paddr_t addr) {
   return (PMEM_BASE <= addr) && (addr <= PMEM_BASE + PMEM_SIZE - 1);
 }

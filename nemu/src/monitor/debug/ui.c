@@ -51,6 +51,16 @@ static int cmd_reg(char *args);
 
 static int cmd_scan(char *args);
 
+static int cmd_t(char *args);
+
+
+static int cmd_t(char *args){
+  bool * flag = 0;
+  expr(args, flag);
+  return 1;
+}
+
+
 static int cmd_step(char *args){
   char *arg = strtok(NULL, " ");
   if(!arg){
@@ -77,7 +87,7 @@ static int cmd_scan(char *args){
 
   //一次读32bit
   int i,j;
-
+  //https://www.cnblogs.com/VIPler/category/658927.html
   for(i=0;i<num;i++){
     printf("0x%x   :  ",addr);
     for(j=0;j<4;j++){
@@ -104,6 +114,7 @@ static struct {
   { "s", "Exec one step",cmd_step},
   { "reg","Info of registers",cmd_reg},
   { "x", "Scan memory",cmd_scan},
+  { "test","test make_token",cmd_t},
 
 };
 

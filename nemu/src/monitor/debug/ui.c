@@ -55,8 +55,8 @@ static int cmd_t(char *args);
 
 
 static int cmd_t(char *args){
-  bool * flag = 0;
-  expr(args, flag);
+  bool flag = false;
+  expr(args, &flag);
   return 1;
 }
 

@@ -5,6 +5,7 @@
  */
 #include <regex.h>
 #include <string.h>
+#include <stdlib.h>
 enum {
   TK_NOTYPE = 256, TK_EQ,
 
@@ -125,10 +126,133 @@ static bool make_token(char *e) {
       return false;
     }
   }
-
+  printf("NR_TOKEN : %d\n",nr_token);
   return true;
 }
 
+
+//pa1.2
+static u_int32_t eval(int p,int q);
+static bool check_parentheses(int p,int q);
+static u_int32_t getMainOpt(int p,int q);
+static bool is_opt(u_int32_t x);
+static u_int32_t opt_pri(int x);
+
+static u_int32_t getMainOpt(int p,int q){
+  u_int32_t result=p;
+  int pos = p;
+  int sum =0;
+  int curPriority = 0;
+  for(;pos<=q;pos++){
+    int tp = tokens[pos].type;
+    if(!is_opt(tp))
+      continue;
+    if(sum!=0)
+      continue;
+    if(tp=='('){
+      sum++;
+      continue;
+    }
+    if(tp==')'){
+      sum--;
+      continue;
+    }
+    else{
+      if(opt_pri(tp)>=curPriority){
+      curPriority = opt_pri(tp);
+      result = pos;
+      }
+      else 
+        continue;
+    }
+
+  }
+  //printf("main opt @ position %d\n",result);
+  return result;
+}
+  
+static bool is_opt(u_int32_t x){
+  switch (x){
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case TK_EQ:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static u_int32_t opt_pri(int x){
+  switch (x){
+    case '*':
+    case '/':
+      return 2;
+    case '+':
+    case '-':
+      return 3;
+    case TK_EQ:
+      return 4;
+    default:
+      return -1;
+  }
+}
+
+
+static bool check_parentheses(int p,int q){
+  if(tokens[p].type!='(' || tokens[q].type!=')')
+    return false;
+
+  int i,sum=0;
+  for(i=p+1;i<q;i++){
+    int tp = tokens[i].type;
+    if(sum<0)
+      return false;
+    if(tp=='(')
+      sum++;
+    else 
+    if(tp==')')
+      sum--;
+  }
+
+  return sum==0;
+}
+
+
+static u_int32_t eval(int p,int q){
+  if(p>q){
+    Assert(0,"invalid order p : %d , q :%d\n",p,q);
+    return 0;
+  }
+  else if(p==q){
+    return strtol(tokens[p].str,NULL,10);
+  }
+
+  else if(check_parentheses(p,q)==true){
+    return eval(p+1,q-1);
+  }
+
+  else{
+    u_int32_t op = getMainOpt(p,q);  //bug
+    printf("op is %d\n",op);
+    u_int32_t val1 = eval(p,op-1);
+    u_int32_t val2 = eval(op+1,q);
+
+    switch(tokens[op].type){
+      case '+':
+        return val1+val2;
+      case '-':
+        return val1-val2;
+      case '*':
+        return val1*val2;
+      case '/':
+        return val1/val2;
+      default:
+        Assert(0,"invalid operation\n");
+    }
+  }
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -140,5 +264,25 @@ word_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   *success = true;
   printf("make token successfully!\n");
+
+
+  printf("Enter check parentheses \n");
+  bool res = check_parentheses(0,nr_token-1);
+  if(res)
+    printf("check_parenthese successfully\n");
+  else
+  {
+    printf("check_parenthese fail\n");
+  }
+
+  printf("Enter get main opt\n");
+  int index = getMainOpt(0,nr_token-1);
+  printf("main opt @ position %d\n",index);
+
+  printf("Enter eval final value\n");
+  int val = eval(0,nr_token-1);
+  printf("result is : %d\n",val);
+  
+
   return 1;
 }

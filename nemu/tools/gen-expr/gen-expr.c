@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <string.h>
 
+
 // this should be enough
 static char buf[65536] = {};
 static char code_buf[65536 + 128] = {}; // a little larger than `buf`
@@ -16,36 +17,118 @@ static char *code_format =
 "  return 0; "
 "}";
 
+int sum = 0;  //buf全局索引
+
+static inline void gen(char x){
+  buf[sum] = x;
+  sum++;
+}
+
+
+#define SPACE  do{if(rand()%2==0) gen(' ');}while(0)
+
+static inline int choose(int x){
+  int result = rand()%x;
+  return result;
+}
+
+static inline void gen_num(){
+  //生成两位数
+  int num,num1,num2;
+  switch(choose(2)){
+    case 0:
+      num = choose(10);
+      gen(num+'0');
+      if(num==0 && sum>=1 && buf[sum-1]=='/'){
+        sum--;
+        num1 = 1+choose(9);
+        gen(num1+'0');
+      }
+      
+
+      break;
+    case 1:
+      num1 = 1+choose(9);
+      gen(num1+'0');
+      num2 = choose(10);
+      gen(num2+'0');
+      break;
+  }
+
+}
+
+
+static inline void  gen_rand_op(){
+  switch (choose(4))
+  {
+  case 0:
+    gen('+');
+    break;
+  case 1:
+    gen('-');
+    break;
+  case 2:
+    gen('*');
+    break;
+  case 3:
+    gen('/');
+    if(buf[sum]!='\0' && buf[sum]=='0')
+      buf[sum] = '1';
+    break;
+  }
+}
+
+
 static inline void gen_rand_expr() {
-  buf[0] = '\0';
+  switch (choose(3))
+  {
+  case 0:
+    gen_num();
+    break;
+  case 1:
+    gen('(');
+    SPACE;
+    gen_rand_expr();
+    SPACE;
+    gen(')');
+    break;
+  default:
+    gen_rand_expr();
+    SPACE;
+    gen_rand_op();
+    SPACE;
+    gen_rand_expr();
+    break;
+  }
 }
 
 int main(int argc, char *argv[]) {
   int seed = time(0);
   srand(seed);
-  int loop = 1;
+  int loop = 10;
   if (argc > 1) {
     sscanf(argv[1], "%d", &loop);
   }
   int i;
   for (i = 0; i < loop; i ++) {
+    sum = 0;
     gen_rand_expr();
-
-    sprintf(code_buf, code_format, buf);
+    buf[sum] = '\0';
+    sprintf(code_buf, code_format, buf); //发送格式化输出到code_buf
 
     FILE *fp = fopen("/tmp/.code.c", "w");
     assert(fp != NULL);
-    fputs(code_buf, fp);
+    fputs(code_buf, fp); //code_buf ->fp
     fclose(fp);
 
     int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
     if (ret != 0) continue;
-
+    //popen()会调用fork()产生子进程，然后从子进程中调用/bin/sh -c 来执行参数command 的指令
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 
     int result;
-    fscanf(fp, "%d", &result);
+    if(fscanf(fp, "%d", &result)); //从fp读取格式化输入
     pclose(fp);
 
     printf("%u %s\n", result, buf);

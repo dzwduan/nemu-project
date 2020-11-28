@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ,TK_NEG,
 
   //pa1.2
   TK_DEC,
@@ -31,11 +31,11 @@ static struct rule {
 
   //pa1.2
   {"\\*",'*'},
-  {"\\-",'-'},
+  {"-",'-'},
   {"/",'/'},
   {"\\(",'('},
   {"\\)",')'},
-  {"0|[1-9]*[0-9]",TK_DEC},
+  {"0|[1-9][0-9]*",TK_DEC},
   
 };
 
@@ -110,9 +110,11 @@ static bool make_token(char *e) {
 
           case TK_EQ:
           case TK_DEC:
-            memset( tokens[nr_token].str,'\0',32);
+            tokens[nr_token].type = rules[i].token_type;
+            memset(tokens[nr_token].str,'\0',32);
             Assert(substr_len<32,"len of token is %d\n",substr_len);
-            strcpy(tokens[nr_token].str,rules[i].regex);
+            strncpy(tokens[nr_token].str,substr_start,substr_len);//fix error
+            tokens[nr_token].str[substr_len]='\0';
             nr_token++;
             break;
           default: 
@@ -138,17 +140,14 @@ static u_int32_t getMainOpt(int p,int q);
 static bool is_opt(u_int32_t x);
 static u_int32_t opt_pri(int x);
 
-static u_int32_t getMainOpt(int p,int q){
-  u_int32_t result=p;
+static u_int32_t getMainOpt(int p,int q){  //bug
+  int result=p;
   int pos = p;
   int sum =0;
   int curPriority = 0;
   for(;pos<=q;pos++){
     int tp = tokens[pos].type;
-    if(!is_opt(tp))
-      continue;
-    if(sum!=0)
-      continue;
+    //注意if的顺序，如果先判断sum，那么当前位为括号则会跳过
     if(tp=='('){
       sum++;
       continue;
@@ -157,6 +156,12 @@ static u_int32_t getMainOpt(int p,int q){
       sum--;
       continue;
     }
+
+    if(!is_opt(tp))
+      continue;
+    
+    if(sum!=0)
+      continue;
     else{
       if(opt_pri(tp)>=curPriority){
       curPriority = opt_pri(tp);
@@ -207,13 +212,13 @@ static bool check_parentheses(int p,int q){
   int i,sum=0;
   for(i=p+1;i<q;i++){
     int tp = tokens[i].type;
-    if(sum<0)
-      return false;
     if(tp=='(')
       sum++;
     else 
-    if(tp==')')
+    if(tp==')') 
       sum--;
+    if(sum<0)
+      return false;
   }
 
   return sum==0;
@@ -221,21 +226,28 @@ static bool check_parentheses(int p,int q){
 
 
 static u_int32_t eval(int p,int q){
+  static int nums=0;
   if(p>q){
-    Assert(0,"invalid order p : %d , q :%d\n",p,q);
+    printf("Bad expression\n");
     return 0;
   }
   else if(p==q){
-    return strtol(tokens[p].str,NULL,10);
+    int number = strtol(tokens[p].str,NULL,10);
+    // printf("tokens[p].str : %s\n",tokens[p].str);
+    // printf("number is %d\n",number);
+    return number;
   }
 
   else if(check_parentheses(p,q)==true){
+    
+    //printf("nums : %d ,p : %d , q : %d\n",nums,p,q);
+    nums++;
     return eval(p+1,q-1);
   }
 
   else{
     u_int32_t op = getMainOpt(p,q);  //bug
-    printf("op is %d\n",op);
+    //printf("op is %d\n",op);
     u_int32_t val1 = eval(p,op-1);
     u_int32_t val2 = eval(op+1,q);
 
@@ -263,26 +275,26 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   *success = true;
-  printf("make token successfully!\n");
+  // printf("make token successfully!\n");
 
 
-  printf("Enter check parentheses \n");
-  bool res = check_parentheses(0,nr_token-1);
-  if(res)
-    printf("check_parenthese successfully\n");
-  else
-  {
-    printf("check_parenthese fail\n");
-  }
+  // printf("Enter check parentheses \n");
+  // bool res = check_parentheses(0,nr_token-1);
+  // if(res)
+  //   printf("check_parenthese successfully\n");
+  // else
+  // {
+  //   printf("check_parenthese fail\n");
+  // }
 
-  printf("Enter get main opt\n");
-  int index = getMainOpt(0,nr_token-1);
-  printf("main opt @ position %d\n",index);
+  // printf("Enter get main opt\n");
+  // int index = getMainOpt(0,nr_token-1);
+  // printf("main opt @ position %d\n",index);
 
-  printf("Enter eval final value\n");
+  // printf("Enter eval final value\n");
   int val = eval(0,nr_token-1);
-  printf("result is : %d\n",val);
+  //printf("result is : %d\n",val);
   
 
-  return 1;
+  return val;
 }

@@ -51,14 +51,14 @@ static int cmd_reg(char *args);
 
 static int cmd_scan(char *args);
 
-static int cmd_t(char *args);
+// static int cmd_t(char *args);
 
 
-static int cmd_t(char *args){
-  bool flag = false;
-  expr(args, &flag);
-  return 1;
-}
+// static int cmd_t(char *args){
+//   bool flag = false;
+//   expr(args, &flag);
+//   return 0;
+// }
 
 
 static int cmd_step(char *args){
@@ -76,7 +76,7 @@ static int cmd_step(char *args){
 
 static int cmd_reg(char *args){
   isa_reg_display();
-  return 1;
+  return 0;
 }
 
 //TODO
@@ -114,7 +114,7 @@ static struct {
   { "s", "Exec one step",cmd_step},
   { "reg","Info of registers",cmd_reg},
   { "x", "Scan memory",cmd_scan},
-  { "test","test make_token",cmd_t},
+  //{ "test","test make_token",cmd_t},
 
 };
 
@@ -149,9 +149,9 @@ void ui_mainloop() {
     return;
   }
 
+  //str未刷新? 导致cmd_t第二次一直报错
   for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);
-
     /* extract the first token as the command */
     char *cmd = strtok(str, " ");
     if (cmd == NULL) { continue; }
@@ -179,4 +179,5 @@ void ui_mainloop() {
 
     if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
   }
+  
 }

@@ -20,7 +20,7 @@ static inline def_EHelper(store) {
   }
 }
 
-
+//覆盖率指令周期：取指译码执行
 static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(&s->seq_pc, 4);
   assert(s->isa.instr.i.opcode1_0 == 0x3);
@@ -42,7 +42,7 @@ vaddr_t isa_exec_once() {
   s.is_jmp = 0;
   s.seq_pc = cpu.pc;
 
-  fetch_decode_exec(&s);
+  fetch_decode_exec(&s); 
   update_pc(&s);
 
   reset_zero();

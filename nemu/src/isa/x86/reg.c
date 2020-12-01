@@ -41,7 +41,12 @@ void reg_test() {
   assert(pc_sample == cpu.pc);
 }
 
-void isa_reg_display() {
+void isa_reg_display() {zu
+  int i;
+	for(i = R_EAX;i <= R_EDI;i ++){
+		printf("%s:  0x%08x  %u\n",regsl[i],cpu.gpr[i]._32,cpu.gpr[i]._32);
+	}
+  printf("pc: 0x%08x  %u\n",cpu.pc);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

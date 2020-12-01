@@ -7,13 +7,12 @@
 #include <string.h>
 #include <stdlib.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_NEG,
+  TK_NOTYPE = 256, TK_EQ,
 
   //pa1.2
   TK_DEC,
-
-  /* TODO: Add more token types */
-
+  //pa1.3
+  TK_AND,TK_ORR,TK_NEQ,TK_NOT,TK_HEX,TK_REG,TK_LMV,TK_RMV,TK_DEREF
 };
 
 static struct rule {
@@ -36,7 +35,19 @@ static struct rule {
   {"\\(",'('},
   {"\\)",')'},
   {"0|[1-9][0-9]*",TK_DEC},
-  
+
+  //pa1.3
+  {"&&",TK_AND},
+  {"\\|\\|",TK_ORR},
+  {"!=",TK_NEQ},
+  {"!",TK_NOT},
+  {"0[Xx][0-9A-Fa-f]+",TK_HEX},
+  {"\\$(eax|EAX|ebx|EBX|ecx|ECX|edx|EDX|ebp|EBP|esp|ESP|esi|ESI|edi|EDI|eip|EIP)",TK_REG},
+  {"\\$(([ABCD][HLX])|([abcd][hlx]))",TK_REG},
+  {"<=",TK_LMV},
+  {"=>",TK_RMV},
+  {"<",'<'},
+  {">",'>'},
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -139,6 +150,7 @@ static bool check_parentheses(int p,int q);
 static u_int32_t getMainOpt(int p,int q);
 static bool is_opt(u_int32_t x);
 static u_int32_t opt_pri(int x);
+static book is_deref(int x);
 
 static u_int32_t getMainOpt(int p,int q){  //bug
   int result=p;
@@ -201,6 +213,27 @@ static u_int32_t opt_pri(int x){
       return 4;
     default:
       return -1;
+  }
+}
+
+static bool is_deref(int x){
+  switch (x){
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case TK_EQ:
+    case TK_NEQ:
+    case '<':
+    case '>':
+    case TK_NOT:
+    case TK_AND:
+    case TK_ORR:
+    //多重指针
+    case TK_DEREF:
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -290,6 +323,13 @@ word_t expr(char *e, bool *success) {
   // printf("Enter get main opt\n");
   // int index = getMainOpt(0,nr_token-1);
   // printf("main opt @ position %d\n",index);
+
+  int i;
+  for(i = 0;i<nr_token;i++){
+    if(tokens[i].type=='*' && (i==0 || is_deref(tokens[i-1].type))){
+      tokens[i].type = TK_DEREF;
+    }
+  }
 
   // printf("Enter eval final value\n");
   int val = eval(0,nr_token-1);

@@ -74,8 +74,13 @@ static int cmd_step(char *args){
   return 0;
 }
 
-static int cmd_reg(char *args){
-  isa_reg_display();
+static int cmd_info(char *args){
+  if(args[0] == 'r'){
+    isa_reg_display();
+  }
+  else if(args[0]=='w'){
+
+  }
   return 0;
 }
 
@@ -112,7 +117,7 @@ static struct {
 
   /* TODO: Add more commands */
   { "s", "Exec one step",cmd_step},
-  { "reg","Info of registers",cmd_reg},
+  { "info","Info of registers or watchpoints",cmd_info},
   { "x", "Scan memory",cmd_scan},
   //{ "test","test make_token",cmd_t},
 

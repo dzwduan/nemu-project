@@ -9,11 +9,19 @@ typedef struct watchpoint {
  
   /* TODO: Add more members if necessary */
   
-  char expr_value[32];
+  char expr_str[32];
   uint32_t value;
+  uint32_t hit;
 } WP;
  
 
- 
+WP* new_wp();
+void free_wp(WP *wp);
+
+bool check_wp();
+
+bool del_wp(int n);
+
+void print_wp();
 
 #endif

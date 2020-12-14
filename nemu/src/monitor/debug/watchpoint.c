@@ -3,7 +3,6 @@
 
 #define NR_WP 32
 
-static int index;
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
@@ -26,40 +25,89 @@ void init_wp_pool() {
 //pa1.3
 
 //从free_中返回一个空闲wp结构
-static inline WP * new_wp(char * args){
-
-  bool success = true;
-  int a = expr(args,&success);
-  if(!success){
-    printf("illegal expressiona!\n");
+WP * new_wp(){
+  if(!free_){
+    printf("free linkedlist is empty\n");
     return NULL;
   }
 
-  WP * insert = free_;
-  free_ = free_->next;
-  insert->next = head;
-  head = insert;
-  head->value = a;
-  memcpy(head->expr_value,args,strlen(args));
-
-  return insert;
-}
-
-//wp归还到free_
-static inline del_wp(int index){
-  if(index>=0 && index<NR_WP){
-    free_wp(&wp_pool[index]);
-  }
-  else{
-    printf("Index %d out of range\n");
-  }
+  WP * p = free_;
+  free_ =  free_->next;
+  p->next = head;
+  head = p;
+  return head;
 }
 
 void free_wp(WP *wp){
-  if(!head || !wp) return;
+  if(!head){
+    printf("There is no wp to free\n");
+    return;
+  }
 
-  bool isFound = false;
-  WP *present = head;
+  if(wp == head){
+    WP * p = head;
+    head = head->next;
+    p->next = free_;
+    free_ = free_->next;
+  }
 
-  if(head.)
+  WP * p = head;
+  while(p->next!=wp){
+    p = p->next;
+  }
+  p->next = wp->next;
+  wp->next = free_;
+  free_ = wp;
+}
+
+bool check_wp(){
+  bool changed = false;
+
+  WP * p = head;
+
+  for(;p!=NULL;p=p->next){
+    bool success = true;
+    word_t val = expr(p->expr_str,&success);
+
+    Assert(success,"expression compute error\n");
+
+    if(val!=p->value){
+      changed = true;
+      printf("watchpoint NO.%d , %s\n",p->NO,p->expr_str);
+      printf("Old value: %d\n",p->value);
+      printf("New value: %d\n",val);
+      Log(" ");  //for what?
+      p->value = val;
+      p->hit++;
+    }
+  }
+  return changed;
+}
+
+bool del_wp(int n){
+  WP * p = head;
+  bool is_free=false;
+  while(p){
+    if(p->NO==n){
+      free_wp(p);
+      is_free = true;
+    }
+    p=p->next;
+  }
+  return is_free;
+}
+
+void print_wp()
+{
+	if(head == NULL) {
+		printf("There is no watchpoints!\n");
+		return;
+	}
+	printf("Num     What     Value\n");
+	WP *p = head;
+	while(p != NULL) {
+		printf("%-8d%-9s%u(%#x)\n", p -> NO, p -> expr_str, p->value, p->value);
+		if(p -> hit > 0) printf("        breakpoint already hit %d time\n", p->hit);
+		p = p -> next;
+	}
 }

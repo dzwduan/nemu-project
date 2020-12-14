@@ -8,8 +8,8 @@ const char *regsw[] = {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"};
 const char *regsb[] = {"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"};
 
 void reg_test() {
-  srand(time(0));
-  word_t sample[8];
+  srand(time(0)); 
+  word_t sample[8]; //sample是8个32bit
   word_t pc_sample = rand();
   cpu.pc = pc_sample;
 
@@ -41,7 +41,7 @@ void reg_test() {
   assert(pc_sample == cpu.pc);
 }
 
-void isa_reg_display() {zu
+void isa_reg_display() {
   int i;
 	for(i = R_EAX;i <= R_EDI;i ++){
 		printf("%s:  0x%08x  %u\n",regsl[i],cpu.gpr[i]._32,cpu.gpr[i]._32);
@@ -49,6 +49,32 @@ void isa_reg_display() {zu
   printf("pc: 0x%08x  %u\n",cpu.pc);
 }
 
+
+//这里假设读到的格式 $eax $ah
 word_t isa_reg_str2val(const char *s, bool *success) {
+  int i;
+  if(strlen(s)==4)
+  for(i=R_EAX;i<=R_EDI;i++){
+    if(strcmp(&s[1],regsl[i])==0){
+      *success = true;
+      return  cpu.gpr[i]._32;
+    }
+  }
+  else if(strlen(s)==3){
+    for(i=R_AX;i<=R_DI;i++){
+      if(strcmp(&s[1],regsw[i])==0){
+        *success = true;
+        return  cpu.gpr[i]._16;
+      } 
+    }
+
+    for(i=R_AL;i<=R_BH;i++){
+      if(strcmp(&s[1],regsb[i])==0){
+        *success = true;
+        return  cpu.gpr[i]._8;
+      }
+  }
+
+  *success = false;
   return 0;
 }

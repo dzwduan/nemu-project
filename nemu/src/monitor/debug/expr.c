@@ -6,13 +6,15 @@
 #include <regex.h>
 #include <string.h>
 #include <stdlib.h>
+#include <memory/vaddr.h>
+
 enum {
   TK_NOTYPE = 256, TK_EQ,
 
   //pa1.2
   TK_DEC,
   //pa1.3
-  TK_AND,TK_ORR,TK_NEQ,TK_NOT,TK_HEX,TK_REG,TK_LMV,TK_RMV,TK_DEREF
+  TK_AND,TK_ORR,TK_NEQ,TK_NOT,TK_HEX,TK_REG,TK_LE,TK_GE,TK_DEREF,TK_MINUS
 };
 
 static struct rule {
@@ -44,8 +46,8 @@ static struct rule {
   {"0[Xx][0-9A-Fa-f]+",TK_HEX},
   {"\\$(eax|EAX|ebx|EBX|ecx|ECX|edx|EDX|ebp|EBP|esp|ESP|esi|ESI|edi|EDI|eip|EIP)",TK_REG},
   {"\\$(([ABCD][HLX])|([abcd][hlx]))",TK_REG},
-  {"<=",TK_LMV},
-  {"=>",TK_RMV},
+  {"<=",TK_LE},
+  {">=",TK_GE},
   {"<",'<'},
   {">",'>'},
 };
@@ -109,18 +111,20 @@ static bool make_token(char *e) {
           case TK_NOTYPE:
             break;
           
+          //单目运算符
           case '+':
           case '-':
           case '*':
           case '/':
           case '(':
           case ')':
+          case TK_NOT:
             tokens[nr_token].type = rules[i].token_type;
             nr_token++;
             break;
-
-          case TK_EQ:
-          case TK_DEC:
+          
+          //其余的多个字符
+          default:
             tokens[nr_token].type = rules[i].token_type;
             memset(tokens[nr_token].str,'\0',32);
             Assert(substr_len<32,"len of token is %d\n",substr_len);
@@ -128,8 +132,6 @@ static bool make_token(char *e) {
             tokens[nr_token].str[substr_len]='\0';
             nr_token++;
             break;
-          default: 
-            Assert(0,"invalid input\n");
         }
         break;
       }
@@ -150,7 +152,7 @@ static bool check_parentheses(int p,int q);
 static u_int32_t getMainOpt(int p,int q);
 static bool is_opt(u_int32_t x);
 static u_int32_t opt_pri(int x);
-static book is_deref(int x);
+static bool is_deref(int x);
 
 static u_int32_t getMainOpt(int p,int q){  //bug
   int result=p;
@@ -187,57 +189,88 @@ static u_int32_t getMainOpt(int p,int q){  //bug
   //printf("main opt @ position %d\n",result);
   return result;
 }
-  
+
+//判断是否是运算符
 static bool is_opt(u_int32_t x){
   switch (x){
-    case '+':
-    case '-':
-    case '*':
-    case '/':
-    case TK_EQ:
-      return true;
-    default:
+    case TK_HEX:
+    case TK_REG:
+    case TK_DEC:
+    case TK_NOTYPE:
       return false;
+    default:
+      return true;
   }
 }
 
+//数字越高优先级越高
 static u_int32_t opt_pri(int x){
   switch (x){
+    
+    case '(':
+    case ')':
+      return 2;
+
+    case TK_NOT:
+    case TK_DEREF:
+    case TK_MINUS:
+      return 3;
+
     case '*':
     case '/':
-      return 2;
+      return 4;
+
     case '+':
     case '-':
-      return 3;
+      return 5;
+
+    case '>':
+    case '<':
+    case TK_LE:
+    case TK_GE:
+    case TK_NEQ:
     case TK_EQ:
-      return 4;
+      return 6;
+
+    case TK_AND:
+      return 7;
+
+    case TK_ORR:
+      return 8;
     default:
       return -1;
   }
 }
 
+//判断是否是解引用之前可能出现的符号
 static bool is_deref(int x){
   switch (x){
-    case '+':
-    case '-':
-    case '*':
-    case '/':
-    case TK_EQ:
-    case TK_NEQ:
-    case '<':
-    case '>':
-    case TK_NOT:
-    case TK_AND:
-    case TK_ORR:
-    //多重指针
-    case TK_DEREF:
-      return true;
+      case TK_DEC:
+      case TK_REG:
+      case TK_HEX:
+      case ')':
+      return false;
     default:
       return false;
   }
 }
 
+static bool is_MINUS(int x){
+  switch (x)
+  {
+    case TK_DEC:
+    case TK_REG:
+    case TK_HEX:
+    case ')':
+      return false;
+    break;
+  
+    default:
+      return true;
+  }
+}
 
+//检查表达式是否被一对括号包围
 static bool check_parentheses(int p,int q){
   if(tokens[p].type!='(' || tokens[q].type!=')')
     return false;
@@ -259,28 +292,61 @@ static bool check_parentheses(int p,int q){
 
 
 static u_int32_t eval(int p,int q){
-  static int nums=0;
+  //static int nums=0;
   if(p>q){
     printf("Bad expression\n");
     return 0;
   }
   else if(p==q){
-    int number = strtol(tokens[p].str,NULL,10);
-    // printf("tokens[p].str : %s\n",tokens[p].str);
-    // printf("number is %d\n",number);
-    return number;
+    if(tokens[p].type == TK_REG){
+      bool flag = true;
+      u_int32_t answer = isa_reg_str2val(tokens[p].str,&flag);
+      if(!flag){
+        printf("invalid reg : input like $eax\n");
+        return 0;
+      }else{
+        return answer;
+      }
+    }
+    else if(tokens[p].type == TK_HEX){
+      u_int32_t hexval = 0;
+      sscanf(tokens[p].str,"0x%x",&hexval);
+      return hexval;
+    }
+    else{
+          u_int32_t number = strtol(tokens[p].str,NULL,10);
+          return number;
+    }
+
   }
 
   else if(check_parentheses(p,q)==true){
     
     //printf("nums : %d ,p : %d , q : %d\n",nums,p,q);
-    nums++;
+    //nums++;
     return eval(p+1,q-1);
   }
 
   else{
-    u_int32_t op = getMainOpt(p,q);  //bug
-    //printf("op is %d\n",op);
+    u_int32_t op = getMainOpt(p,q);  
+
+    //将解引用和负号独立出来考虑，且这只对一个数进行操作
+    if(p == op || tokens[op].type==TK_MINUS || tokens[op].type==TK_DEREF){
+      u_int32_t val = eval(p+1,q);
+      switch (tokens[op].type)
+      {
+        case TK_MINUS:
+          return -val;
+        case TK_DEREF:
+          return vaddr_read(val,4);
+          
+        default:
+          return -1;
+          break;
+      }
+    }
+
+
     u_int32_t val1 = eval(p,op-1);
     u_int32_t val2 = eval(op+1,q);
 
@@ -293,6 +359,22 @@ static u_int32_t eval(int p,int q){
         return val1*val2;
       case '/':
         return val1/val2;
+      case TK_EQ:
+        return val1==val2;
+      case TK_GE:
+        return val1>=val2;
+      case TK_LE:
+        return val1<=val2;
+      case TK_AND:
+        return val1&&val2;
+      case TK_ORR:
+        return val1||val2;
+      case '<':
+        return val1<val2;
+      case '>':
+        return val1>val2;
+      case TK_NEQ:
+        return val1!=val2;
       default:
         Assert(0,"invalid operation\n");
     }
@@ -326,9 +408,14 @@ word_t expr(char *e, bool *success) {
 
   int i;
   for(i = 0;i<nr_token;i++){
+    //这二者都在原有基础上修改语义
     if(tokens[i].type=='*' && (i==0 || is_deref(tokens[i-1].type))){
       tokens[i].type = TK_DEREF;
     }
+    if(tokens[i].type=='-' && (i==0 || is_MINUS(tokens[i-1].type))){
+      tokens[i].type = TK_MINUS;
+    }
+
   }
 
   // printf("Enter eval final value\n");

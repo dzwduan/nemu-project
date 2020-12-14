@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <string.h>
 
+//#define NR_TOKEN 50
 
 // this should be enough
 static char buf[65536] = {};
@@ -86,6 +87,7 @@ static inline void gen_rand_expr() {
     gen_num();
     break;
   case 1:
+    //if(sum+10 > NR_TOKEN) return ;  //控制生成的长度
     gen('(');
     SPACE;
     gen_rand_expr();
@@ -93,6 +95,7 @@ static inline void gen_rand_expr() {
     gen(')');
     break;
   default:
+    //if(sum+10 > NR_TOKEN) return ;
     gen_rand_expr();
     SPACE;
     gen_rand_op();

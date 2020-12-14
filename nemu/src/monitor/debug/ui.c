@@ -7,7 +7,8 @@
 #include <readline/history.h>
 
 #include <memory/vaddr.h>
-#include <isa/riscv32.h>
+#include <isa/x86.h>
+#include "expr.h"
 
 
 extern void isa_reg_display(void);
@@ -47,9 +48,11 @@ static int cmd_help(char *args);
 //PA1.1
 static int cmd_step(char *args);
 
-static int cmd_reg(char *args);
-
 static int cmd_scan(char *args);
+
+static int cmd_watch(char *args);
+
+static int cmd_delW(char *args);
 
 // static int cmd_t(char *args);
 
@@ -63,24 +66,30 @@ static int cmd_scan(char *args);
 
 static int cmd_step(char *args){
   char *arg = strtok(NULL, " ");
+
   if(!arg){
     cpu_exec(1);
   }
   else{
-    int num = 1;
-    sscanf(arg, "%d",&num);
+    bool flag = false;
+    word_t num = expr(arg,&flag);
     cpu_exec(num);
   }
   return 0;
 }
 
 static int cmd_info(char *args){
-  if(args[0] == 'r'){
+  if(args[0] == 'r' ||args[0] == 'R'){
     isa_reg_display();
   }
-  else if(args[0]=='w'){
-
+  else if(args[0]=='w' || args[0]=='W'){
+    print_wp();
   }
+  else
+  {
+    printf("Unknown command, pls choose froe [r/R] [w/W]]\n");
+  }
+  
   return 0;
 }
 
@@ -102,9 +111,48 @@ static int cmd_scan(char *args){
     }
       printf("\n");
   }
-  return 1;
+  return 0;
 }
 
+//什么逻辑？
+static int cmd_watch(char *args){
+
+  char *arg = strtok(NULL, " ");
+  if(arg == NULL) return 0;
+
+  WP * wp = new_wp();
+  memset(wp->expr_str,0,sizeof(wp->expr_str));
+  strcpy(wp->expr_str,arg);
+
+  bool success = true;
+  wp->value = expr(arg,&success);
+
+  if(!success){
+		printf("set watchpoint failed. Please check your exprssion!\n");
+		free_wp(wp);
+	}
+
+  wp->hit = 0;
+  return 0;
+}
+
+static int cmd_delW(char *args){
+  char *arg = strtok(NULL, " ");
+  if(!arg){
+    printf("NO. of watchpoint can't be empty\n");
+    return -1; 
+  }
+  int n;
+  sscanf(arg,"%d",&n);
+  bool success = del_wp(n);
+  if(!success){
+    printf("del watchpoint failed\n");
+  }
+  else{
+    printf("del watchpoint %d success\n",n);
+  }
+  return 0;
+}
 
 static struct {
   char *name;
@@ -119,6 +167,8 @@ static struct {
   { "s", "Exec one step",cmd_step},
   { "info","Info of registers or watchpoints",cmd_info},
   { "x", "Scan memory",cmd_scan},
+  { "w", "set watchpoint",cmd_watch},
+  { "d", "delete watchpoint",cmd_delW},
   //{ "test","test make_token",cmd_t},
 
 };
@@ -149,12 +199,11 @@ static int cmd_help(char *args) {
 }
 
 void ui_mainloop() {
-  if (is_batch_mode()) {
+  if (is_batch_mode()) { //默认false
     cmd_c(NULL);
     return;
   }
 
-  //str未刷新? 导致cmd_t第二次一直报错
   for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);
     /* extract the first token as the command */
@@ -164,7 +213,7 @@ void ui_mainloop() {
     /* treat the remaining string as the arguments,
      * which may need further parsing
      */
-    char *args = cmd + strlen(cmd) + 1;
+    char *args = cmd + strlen(cmd) + 1; //+1是因为由空格
     if (args >= str_end) {
       args = NULL;
     }
@@ -176,13 +225,13 @@ void ui_mainloop() {
 
     int i;
     for (i = 0; i < NR_CMD; i ++) {
-      if (strcmp(cmd, cmd_table[i].name) == 0) {
+      if (strcmp(cmd, cmd_table[i].name) == 0) { //如果第一个空格前的内容得以匹配，则调用相应处理函数
         if (cmd_table[i].handler(args) < 0) { return; }
         break;
       }
     }
 
-    if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
+    if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }  //到达循环结尾，说明命令未知
   }
   
 }

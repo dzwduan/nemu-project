@@ -46,7 +46,7 @@ void isa_reg_display() {
 	for(i = R_EAX;i <= R_EDI;i ++){
 		printf("%s:  0x%08x  %u\n",regsl[i],cpu.gpr[i]._32,cpu.gpr[i]._32);
 	}
-  printf("pc: 0x%08x  %u\n",cpu.pc);
+  printf("pc: 0x%08x \n",cpu.pc);
 }
 
 
@@ -57,24 +57,24 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   for(i=R_EAX;i<=R_EDI;i++){
     if(strcmp(&s[1],regsl[i])==0){
       *success = true;
-      return  cpu.gpr[i]._32;
+      return  reg_l(i);
     }
   }
   else if(strlen(s)==3){
     for(i=R_AX;i<=R_DI;i++){
       if(strcmp(&s[1],regsw[i])==0){
         *success = true;
-        return  cpu.gpr[i]._16;
+        return  reg_w(i);
       } 
     }
 
     for(i=R_AL;i<=R_BH;i++){
       if(strcmp(&s[1],regsb[i])==0){
         *success = true;
-        return  cpu.gpr[i]._8;
+        return  reg_b(i);
       }
+    }
   }
-
   *success = false;
   return 0;
-}
+} 

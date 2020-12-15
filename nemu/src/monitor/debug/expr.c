@@ -358,6 +358,9 @@ static u_int32_t eval(int p,int q){
       case '*':
         return val1*val2;
       case '/':
+        if(val2==0){
+          Assert(0,"Zero div is wrong!\n");
+        }
         return val1/val2;
       case TK_EQ:
         return val1==val2;

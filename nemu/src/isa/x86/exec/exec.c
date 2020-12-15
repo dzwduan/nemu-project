@@ -110,6 +110,10 @@ again:
     IDEX (0xd1, gp2_1_E, gp2)
     IDEXW(0xd2, gp2_cl2E, gp2, 1)
     IDEX (0xd3, gp2_cl2E, gp2)
+
+    //pa2.1
+    IDEX (0xe8, J, call)
+
     EX   (0xd6, nemu_trap)
     IDEXW(0xf6, E, gp3, 1)
     IDEX (0xf7, E, gp3)
@@ -121,7 +125,7 @@ again:
 }
 
 vaddr_t isa_exec_once() {
-  DecodeExecState s;
+  DecodeExecState s;  //注意所有后续用到的s都是来自这个
   s.is_jmp = 0;
   s.isa = (ISADecodeInfo) { 0 };
   s.seq_pc = cpu.pc;

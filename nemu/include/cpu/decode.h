@@ -23,7 +23,7 @@ typedef struct {
 typedef struct {
   uint32_t opcode;
   vaddr_t seq_pc;  // sequential pc 当前pc
-  uint32_t is_jmp;
+  uint32_t is_jmp; //??
   vaddr_t jmp_pc;
   Operand src1, dest, src2; //源操作数和目的操作数
   int width;

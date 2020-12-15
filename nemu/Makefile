@@ -118,3 +118,10 @@ clean:
 	$(MAKE) -C tools/gen-expr clean
 	$(MAKE) -C tools/qemu-diff clean
 	$(MAKE) -C tools/kvm-diff clean
+
+count:
+	@echo "Counting the number if lines of the codes(.c .h)"
+	@echo ".c and .h codes with blank lines:"
+	@find . -name "*.[ch]" | xargs cat | wc -l 
+	@echo ".c and .h codes without blank lines:"
+	@find . -name "*.[ch]" | xargs cat | grep -v ^$$ | wc -l

@@ -113,6 +113,9 @@ gdb: run-env
 $(DIFF_REF_SO):
 	$(MAKE) -C $(DIFF_REF_PATH) $(MKFLAGS)
 
+count:
+	$(shell wc -l  find -name *.[ch])
+
 clean:
 	-rm -rf $(BUILD_DIR)
 	$(MAKE) -C tools/gen-expr clean

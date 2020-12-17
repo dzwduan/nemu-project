@@ -31,9 +31,10 @@ static inline void load_addr(DecodeExecState *s, ModR_M *m, Operand *rm) {
   sword_t disp = 0;
   int disp_size = 4;
   int base_reg = -1, index_reg = -1, scale = 0;
+  //R[base]+R[index_reg]*scale_factor+displacement
 
   if (m->R_M == R_ESP) {
-    SIB sib;
+    SIB sib; //sib用于确定指令的操作数
     sib.val = instr_fetch(&s->seq_pc, 1);
     base_reg = sib.base;
     scale = sib.ss;
@@ -99,12 +100,16 @@ static inline void load_addr(DecodeExecState *s, ModR_M *m, Operand *rm) {
 
 void read_ModR_M(DecodeExecState *s, Operand *rm, bool load_rm_val, Operand *reg, bool load_reg_val) {
   ModR_M m;
-  m.val = instr_fetch(&s->seq_pc, 1);
-  s->isa.ext_opcode = m.opcode;
+  m.val = instr_fetch(&s->seq_pc, 1); //读一个字节
+  s->isa.ext_opcode = m.opcode; 
+  //读取reg   reg->val = m.reg
   if (reg != NULL) operand_reg(s, reg, load_reg_val, m.reg, reg->width);
+  //读取mem   rm.val = m.R_M
   if (m.mod == 3) operand_reg(s, rm, load_rm_val, m.R_M, rm->width);
   else {
     load_addr(s, &m, rm);
+    
+    //rm->val = 从s->isa.mbase + s->isa.moff开始的长度为width的数据
     if (load_rm_val) rtl_lm(s, &rm->val, s->isa.mbase, s->isa.moff, rm->width);
     rm->preg = &rm->val;
   }

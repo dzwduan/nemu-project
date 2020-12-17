@@ -3,7 +3,7 @@
 
 #include <common.h>
 
-#define c_shift_mask 0x1f
+#define c_shift_mask 0x1f   //5位
 
 #define c_add(a, b) ((a) + (b))
 #define c_sub(a, b) ((a) - (b))

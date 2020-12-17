@@ -13,8 +13,8 @@ static inline void set_width(DecodeExecState *s, int width) {
 /* 0x80, 0x81, 0x83 */
 static inline def_EHelper(gp1) {
   switch (s->isa.ext_opcode) {
-    EMPTY(0) EMPTY(1) EMPTY(2) EMPTY(3)
-    EMPTY(4) EMPTY(5) EMPTY(6) EMPTY(7)
+    EX(0, add) EMPTY(1) EMPTY(2) EMPTY(3)
+    EMPTY(4) EX(5, sub) EMPTY(6) EMPTY(7)
   }
 }
 
@@ -71,10 +71,22 @@ static inline def_EHelper(2byte_esc) {
 static inline void fetch_decode_exec(DecodeExecState *s) {
   uint8_t opcode;
 again:
-  opcode = instr_fetch(&s->seq_pc, 1);
+  opcode = instr_fetch(&s->seq_pc, 1); //opcode取第一个字节
   s->opcode = opcode;
   switch (opcode) {
     EX   (0x0f, 2byte_esc)
+
+    IDEX(0x50, r, push)
+    IDEX(0x51, r, push)
+    IDEX(0x52, r, push)
+    IDEX(0x53, r, push)
+    IDEX(0x54, r, push)
+    IDEX(0x55, r, push)
+    IDEX(0x56, r, push)
+    IDEX(0x57, r, push)
+
+    IDEX(0x68, I, push)
+
     IDEXW(0x80, I2E, gp1, 1)
     IDEX (0x81, I2E, gp1)
     IDEX (0x83, SI2E, gp1)
@@ -119,18 +131,18 @@ again:
     IDEX (0xf7, E, gp3)
     IDEXW(0xfe, E, gp4, 1)
     IDEX (0xff, E, gp5)
-  case 0x66: s->isa.is_operand_size_16 = true; goto again;
+  case 0x66: s->isa.is_operand_size_16 = true; goto again; //0x66要改变宽度
   default: exec_inv(s);
   }
 }
 
 vaddr_t isa_exec_once() {
   DecodeExecState s;  //注意所有后续用到的s都是来自这个
-  s.is_jmp = 0;
-  s.isa = (ISADecodeInfo) { 0 };
+  s.is_jmp = 0; 
+  s.isa = (ISADecodeInfo) { 0 };  //isa相关信息初始为空
   s.seq_pc = cpu.pc;
 
-  fetch_decode_exec(&s);
+  fetch_decode_exec(&s); //重点！！！
   update_pc(&s);
 
   return s.seq_pc;

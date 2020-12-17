@@ -169,7 +169,7 @@ static struct {
   { "x", "Scan memory",cmd_scan},
   { "w", "set watchpoint",cmd_watch},
   { "d", "delete watchpoint",cmd_delW},
-  //{ "test","test make_token",cmd_t},
+  //{ "t","test make_token",cmd_t},
 
 };
 

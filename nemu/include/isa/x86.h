@@ -37,7 +37,23 @@ typedef struct {
    * in PA2 able to directly access these registers.
    */
   vaddr_t pc;
-  rtlreg_t EFLAGS; //pa2 need
+  //根据寄存器的位置初始化
+  union{
+    struct{
+      uint32_t CF:1;
+      uint32_t   :5;
+      uint32_t ZF:1;
+      uint32_t SF:1;
+      uint32_t SF:1;
+      uint32_t   :1;
+      uint32_t IF:1;
+      uint32_t   :1;
+      uint32_t OF:1;
+    }eflags;
+
+    uint32_t eflags_val;
+  };
+
 } x86_CPU_state;
 
 // decode
@@ -45,10 +61,12 @@ typedef struct {
   bool is_operand_size_16;
   uint8_t ext_opcode;
   const rtlreg_t *mbase;
-  rtlreg_t mbr;
+  rtlreg_t mbr; //内存基地址
   word_t moff;
 } x86_ISADecodeInfo;
 
+
+//操作数宽度width对应的后缀字符(仅x86使用)
 #define suffix_char(width) ((width) == 4 ? 'l' : ((width) == 1 ? 'b' : ((width) == 2 ? 'w' : '?')))
 #define isa_vaddr_check(vaddr, type, len) (MEM_RET_OK)
 #define x86_has_mem_exception() (false)

@@ -3,21 +3,29 @@
 
 void read_ModR_M(DecodeExecState *s, Operand *rm, bool load_rm_val, Operand *reg, bool load_reg_val);
 
+/*
+如果源操作数是x86寄存器的字节或半字访问, 
+那么其类型并不是一个完整的rtlreg_t, 不能直接被preg指向. 
+此时译码过程会通过rtl_lr将相应的值读入到操作数结构体Operand的val成员, 
+然后再让preg指向val.
+*/
+//op.val <-reg
 static inline void operand_reg(DecodeExecState *s, Operand *op, bool load_val, int r, int width) {
   op->type = OP_TYPE_REG;
-  op->reg = r;
+  op->reg = r; //第几个寄存器
 
   if (width == 4) {
-    op->preg = &reg_l(r);
+    op->preg = &reg_l(r); //宽度4，直接读取reg值
   } else {
     assert(width == 1 || width == 2);
-    op->preg = &op->val;
+    op->preg = &op->val; 
     if (load_val) rtl_lr(s, &op->val, r, width);
   }
 
   print_Dop(op->str, OP_STR_SIZE, "%%%s", reg_name(r, width));
 }
 
+//op.val <- imm
 static inline void operand_imm(DecodeExecState *s, Operand *op, bool load_val, word_t imm, int width) {
   op->type = OP_TYPE_IMM;
   op->imm = imm;
@@ -88,6 +96,7 @@ static inline def_DopHelper(r) {
  * Rd
  * Sw
  */
+//将 reg/mem 读入 rm.val/reg.val
 static inline void operand_rm(DecodeExecState *s, Operand *rm, bool load_rm_val, Operand *reg, bool load_reg_val) {
   read_ModR_M(s, rm, load_rm_val, reg, load_reg_val);
 }
@@ -199,7 +208,7 @@ static inline def_DHelper(test_I) {
   decode_op_I(s, id_src1, true);
 }
 
-static inline def_DHelper(SI2E) {
+static inline def_DHelper(SI2E) {  //为什么不能是1字节??? 2个操作数都占用空间？
   assert(id_dest->width == 2 || id_dest->width == 4);
   operand_rm(s, id_dest, true, NULL, false);
   id_src1->width = 1;

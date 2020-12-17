@@ -6,6 +6,7 @@
 #include <memory/vaddr.h>
 #include <cpu/decode.h>
 
+//执行
 #define def_EHelper(name) void concat(exec_, name) (DecodeExecState *s)
 
 // empty decode helper
@@ -19,6 +20,8 @@
 
 // set_width() is defined in src/isa/$isa/exec/exec.c
 #define CASE_ENTRY(idx, id, ex, w) case idx: set_width(s, w); id(s); ex(s); break;
+
+
 
 //取指令，根据len调用不同的vaddr_ifetch
 static inline uint32_t instr_fetch(vaddr_t *pc, int len) {
@@ -36,7 +39,7 @@ static inline uint32_t instr_fetch(vaddr_t *pc, int len) {
 }
 
 static inline void update_pc(DecodeExecState *s) {
-  cpu.pc = (s->is_jmp ? s->jmp_pc : s->seq_pc);
+  cpu.pc = (s->is_jmp ? s->jmp_pc : s->seq_pc); //是否跳转，不跳转则继续使用seq_pc
 }
 
 #ifdef DEBUG

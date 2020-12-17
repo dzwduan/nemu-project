@@ -127,7 +127,7 @@ static bool make_token(char *e) {
           default:
             tokens[nr_token].type = rules[i].token_type;
             memset(tokens[nr_token].str,'\0',32);
-            Assert(substr_len<32,"len of token is %d\n",substr_len);
+            printf("len of token is %d out of bound\n",substr_len);
             strncpy(tokens[nr_token].str,substr_start,substr_len);//fix error
             tokens[nr_token].str[substr_len]='\0';
             nr_token++;
@@ -359,7 +359,8 @@ static u_int32_t eval(int p,int q){
         return val1*val2;
       case '/':
         if(val2==0){
-          Assert(0,"Zero div is wrong!\n");
+          printf("Zero div is wrong!\n");
+          return -1;
         }
         return val1/val2;
       case TK_EQ:
@@ -379,7 +380,8 @@ static u_int32_t eval(int p,int q){
       case TK_NEQ:
         return val1!=val2;
       default:
-        Assert(0,"invalid operation\n");
+        printf("invalid operation\n");
+        return -1;
     }
   }
 }

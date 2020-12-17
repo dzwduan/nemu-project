@@ -46,7 +46,7 @@ static inline def_rtl(is_sub_overflow, rtlreg_t* dest,
 static inline def_rtl(is_sub_carry, rtlreg_t* dest,
     const rtlreg_t* src1, const rtlreg_t* src2) {
   // dest <- is_carry(src1 - src2)
-  TODO();
+  
 }
 
 static inline def_rtl(is_add_overflow, rtlreg_t* dest,
@@ -63,10 +63,10 @@ static inline def_rtl(is_add_carry, rtlreg_t* dest,
 
 #define def_rtl_setget_eflags(f) \
   static inline def_rtl(concat(set_, f), const rtlreg_t* src) { \
-    TODO(); \
+    cpu.eflags.f = ((*src)&0x1); \
   } \
   static inline def_rtl(concat(get_, f), rtlreg_t* dest) { \
-    TODO(); \
+    *dest = cpu.eflags.f; \
   }
 
 def_rtl_setget_eflags(CF)
@@ -76,12 +76,18 @@ def_rtl_setget_eflags(SF)
 
 static inline def_rtl(update_ZF, const rtlreg_t* result, int width) {
   // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
-  TODO();
+  //判断是否每一位都是0
+  assert(width==1 || width==2 || width==4);
+  *t0 = !*result;
+  rtl_set_ZF(t0);
 }
 
 static inline def_rtl(update_SF, const rtlreg_t* result, int width) {
   // eflags.SF <- is_sign(result[width * 8 - 1 .. 0])
-  TODO();
+  assert(width==1 || width==2 || width==4);
+  *t0 = (*result)>>(width*8-1) & 0x01;
+  
+  rtl_set_SF(t0);
 }
 
 static inline def_rtl(update_ZFSF, const rtlreg_t* result, int width) {

@@ -117,6 +117,7 @@ static inline def_DopHelper(O) {
 /* Eb <- Gb
  * Ev <- Gv
  */
+// id_dest <- id_src1 且开启缓存
 static inline def_DHelper(G2E) {
   operand_rm(s, id_dest, true, id_src1, true);
 }
@@ -212,6 +213,7 @@ static inline def_DHelper(SI2E) {  //为什么不能是1字节??? 2个操作数�
   assert(id_dest->width == 2 || id_dest->width == 4);
   operand_rm(s, id_dest, true, NULL, false);
   id_src1->width = 1;
+  //获取id_src1.imm
   decode_op_SI(s, id_src1, true);
   if (id_dest->width == 2) {
     *dsrc1 &= 0xffff;

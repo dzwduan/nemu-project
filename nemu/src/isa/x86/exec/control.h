@@ -32,7 +32,9 @@ static inline def_EHelper(call) {
 }
 
 static inline def_EHelper(ret) {
-  TODO();
+  rtl_pop(s,&s->jmp_pc);
+  s->is_jmp=0;
+  s->seq_pc=s->jmp_pc;
   print_asm("ret");
 }
 

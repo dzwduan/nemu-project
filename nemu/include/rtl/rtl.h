@@ -3,7 +3,7 @@
 
 #include <cpu/decode.h>
 
-#define id_src1 (&s->src1)
+#define id_src1 (&s->src1) //id_src 是 Opereand类
 #define id_src2 (&s->src2)
 #define id_dest (&s->dest)
 

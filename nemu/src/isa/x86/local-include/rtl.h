@@ -6,6 +6,8 @@
 
 /* RTL pseudo instructions */
 
+static inline int sign(const rtlreg_t* val , int width);
+
 static inline def_rtl(lr, rtlreg_t* dest, int r, int width) {
   switch (width) {
     case 4: rtl_mv(s, dest, &reg_l(r)); return;
@@ -34,19 +36,28 @@ static inline def_rtl(push, const rtlreg_t* src1) {
 static inline def_rtl(pop, rtlreg_t* dest) {
   // dest <- M[esp]
   // esp <- esp + 4
-  TODO();
+  *dest = vaddr_read(reg_l(R_ESP),4);
+  reg_l(R_ESP) +=4;
 }
 
 static inline def_rtl(is_sub_overflow, rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
   // dest <- is_overflow(src1 - src2)
-  TODO();
+  if(sign(src1,width) == sign(src2,width))
+    *dest = 0;
+  else{
+    rtl_sub(s,t0,src1,src2);
+    if(sign(t0,width) != sign(src1,width))
+      *dest = 1;
+    else
+      *dest = 0;    
+  }
 }
 
 static inline def_rtl(is_sub_carry, rtlreg_t* dest,
     const rtlreg_t* src1, const rtlreg_t* src2) {
   // dest <- is_carry(src1 - src2)
-  
+  *dest = *src1 < *src2;
 }
 
 static inline def_rtl(is_add_overflow, rtlreg_t* dest,
@@ -74,12 +85,16 @@ def_rtl_setget_eflags(OF)
 def_rtl_setget_eflags(ZF)
 def_rtl_setget_eflags(SF)
 
+static inline int sign(const rtlreg_t* val , int width){
+  return (*val >>(width*8 - 1))&0x1;
+}
+
 static inline def_rtl(update_ZF, const rtlreg_t* result, int width) {
   // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
   //判断是否每一位都是0
   assert(width==1 || width==2 || width==4);
   *t0 = !*result;
-  rtl_set_ZF(t0);
+  rtl_set_ZF(s,t0);
 }
 
 static inline def_rtl(update_SF, const rtlreg_t* result, int width) {
@@ -87,7 +102,7 @@ static inline def_rtl(update_SF, const rtlreg_t* result, int width) {
   assert(width==1 || width==2 || width==4);
   *t0 = (*result)>>(width*8-1) & 0x01;
   
-  rtl_set_SF(t0);
+  rtl_set_SF(s,t0);
 }
 
 static inline def_rtl(update_ZFSF, const rtlreg_t* result, int width) {

@@ -9,7 +9,7 @@ void read_ModR_M(DecodeExecState *s, Operand *rm, bool load_rm_val, Operand *reg
 此时译码过程会通过rtl_lr将相应的值读入到操作数结构体Operand的val成员, 
 然后再让preg指向val.
 */
-//op.val <-reg
+//op.val <-r
 static inline void operand_reg(DecodeExecState *s, Operand *op, bool load_val, int r, int width) {
   op->type = OP_TYPE_REG;
   op->reg = r; //第几个寄存器
@@ -209,11 +209,13 @@ static inline def_DHelper(test_I) {
   decode_op_I(s, id_src1, true);
 }
 
-static inline def_DHelper(SI2E) {  //为什么不能是1字节??? 2个操作数都占用空间？
+static inline def_DHelper(SI2E) {  
+  //根据add 0x83 dest长度为16/32
   assert(id_dest->width == 2 || id_dest->width == 4);
+  //dest = NULL
   operand_rm(s, id_dest, true, NULL, false);
   id_src1->width = 1;
-  //获取id_src1.imm
+  //op.val = imm
   decode_op_SI(s, id_src1, true);
   if (id_dest->width == 2) {
     *dsrc1 &= 0xffff;

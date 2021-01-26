@@ -101,7 +101,7 @@ static inline void load_addr(DecodeExecState *s, ModR_M *m, Operand *rm) {
 void read_ModR_M(DecodeExecState *s, Operand *rm, bool load_rm_val, Operand *reg, bool load_reg_val) {
   ModR_M m;
   m.val = instr_fetch(&s->seq_pc, 1); //读一个字节
-  s->isa.ext_opcode = m.opcode; 
+  s->isa.ext_opcode = m.opcode; //同一个指令组中的指令需要通过ModR/M字节中的扩展opcode域来区分
   //读取reg   reg->val = m.reg
   if (reg != NULL) operand_reg(s, reg, load_reg_val, m.reg, reg->width);
   //读取mem   rm.val = m.R_M

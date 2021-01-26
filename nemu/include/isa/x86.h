@@ -58,7 +58,7 @@ typedef struct {
 // decode
 typedef struct {
   bool is_operand_size_16;
-  uint8_t ext_opcode;
+  uint8_t ext_opcode; //用于每组gp中定位
   const rtlreg_t *mbase;
   rtlreg_t mbr; //内存基地址
   word_t moff;

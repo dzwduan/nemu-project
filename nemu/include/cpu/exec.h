@@ -12,6 +12,7 @@
 // empty decode helper
 #define decode_empty(s)
 
+
 #define IDEXW(idx, id, ex, w) CASE_ENTRY(idx, concat(decode_, id), concat(exec_, ex), w)
 #define IDEX(idx, id, ex)     IDEXW(idx, id, ex, 0)
 #define EXW(idx, ex, w)       IDEXW(idx, empty, ex, w)
@@ -21,7 +22,7 @@
 // set_width() is defined in src/isa/$isa/exec/exec.c
 #define CASE_ENTRY(idx, id, ex, w) case idx: set_width(s, w); id(s); ex(s); break;
 
-
+//ex   idexw(idx empty ex 0) case idx : set_width(s,0) ;无译码 ;ex(s);break;
 
 //取指令，根据len调用不同的vaddr_ifetch
 static inline uint32_t instr_fetch(vaddr_t *pc, int len) {

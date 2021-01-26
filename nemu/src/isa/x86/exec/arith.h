@@ -35,23 +35,58 @@ static inline def_EHelper(sub) {
 }
 
 static inline def_EHelper(cmp) {
-  TODO();
+  //LeftSRC - SignExtend(RightSRC);
+  rtl_sext(s,dsrc1,dsrc1,dsrc1->width);
+  rtl_sub(s, s0, ddest,dsrc1);
+  //operand_write(s,id_dest, s0);  这里无需写入值
+  rtl_update_ZFSF(s, s0, id_dest->width);
+
+  rtl_is_sub_carry(s, s1,s0,dsrc1);
+  rtl_set_CF(s, s1);
+  rtl_is_sub_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  rtl_set_OF(s, s1);
+
   print_asm_template2(cmp);
 }
 
 static inline def_EHelper(inc) {
-  TODO();
+  *s1  = 1;
+  rtl_add(s,s0,ddest,s1);
+  operand_write(s,id_dest, s0);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+
+  rtl_is_add_carry(s, s1,s0,dsrc1);
+  rtl_set_CF(s, s1);
+  rtl_is_add_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  rtl_set_OF(s, s1);
   
   print_asm_template1(inc);
 }
 
 static inline def_EHelper(dec) {
-  TODO();
+  *s1  = 1;
+  rtl_sub(s,s0,ddest,s1);
+  operand_write(s,id_dest, s0);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+
+  rtl_is_sub_carry(s, s1,s0,dsrc1);
+  rtl_set_CF(s, s1);
+  rtl_is_sub_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  rtl_set_OF(s, s1);
+  
   print_asm_template1(dec);
 }
 
 static inline def_EHelper(neg) {
-  TODO();
+  //IF r/m = 0 THEN CF := 0 ELSE CF := 1; FI;  r/m := - r/m;
+  rtl_sub(s,s0,rz,ddest);
+  operand_write(s,id_dest, s0);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  rtl_is_sub_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  rtl_set_OF(s, s1);
+  if(*ddest == 0)  cpu.eflags.CF=0;
+  else  cpu.eflags.CF=1;
+
   print_asm_template1(neg);
 }
 

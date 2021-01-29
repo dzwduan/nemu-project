@@ -19,6 +19,7 @@ int abs(int x) {
   return (x < 0 ? -x : x);
 }
 
+
 int atoi(const char* nptr) {
   int x = 0;
   while (*nptr == ' ') { nptr ++; }
@@ -29,6 +30,8 @@ int atoi(const char* nptr) {
   return x;
 }
 
+//==============================next all for malloc/free==================================
+//refer to malloc-tutorial.pdf
 void *malloc(size_t size) {
   return NULL;
 }

@@ -52,40 +52,96 @@ char* strcat(char* dst, const char* src) {
 若s1==s2，返回零；
 若s1>s2，返回正数；
 若s1<s2，返回负数。
+refer to glibc
 */
 int strcmp(const char* s1, const char* s2) {
-  register const unsigned char * p1 = s1;
-  register const unsigned char * p2 = s2;
-
-  unsigned char * c1 ,*c2;
+ 
+  unsigned char c1,c2;
 
   do{
-    c1 = (unsigned char) *p1++;
-    c2 = (unsigned char) *p2++;
-    if(c1=='\0')
-      return c1 - c2;  
-  }while(c1 == c2);
-
+    c1 = *s1++;
+    c2 = *s2++;
+    if(c1=='\0') return c1-c2;
+  }while(c1==c2);
   return c1-c2;
 }
 
+/* Compare no more than N characters of S1 and S2,
+   returning less than, equal to or greater than zero
+   if S1 is lexicographically less than, equal to or
+   greater than S2.  */
 int strncmp(const char* s1, const char* s2, size_t n) {
+  char c1,c2;
+  while(n--){
+    c1 = *s1++;
+    c2 = *s2++;
 
+    if(c1=='\0' || c1!=c2) return c1-c2;
+  }
+  return c1-c2;
 }
 
 void* memset(void* v,int c,size_t n) {
-  return NULL;
+  char *dst = v;
+  if(n>=8){
+    size_t xlen;
+    xlen = n>>3;
+
+    while(xlen--){
+      *dst++ = c;
+      *dst++ = c;
+      *dst++ = c;
+      *dst++ = c;
+      *dst++ = c;
+      *dst++ = c;
+      *dst++ = c;
+      *dst++ = c;
+    }
+  }
+
+  n = n&0x7;
+  while(n--) *dst++ = c;
+  return 0;
 }
 
+//考虑区域重叠
 void* memmove(void* dst,const void* src,size_t n) {
-  return NULL;
+  assert(dst && src);
+  void * addr = dst;
+  //无重叠
+  if((dst>=src && src+n <= dst) || (dst<=src && dst+n<=src)){
+    while(n--)
+    *dst++ = *src++;
+  }
+  //重叠部分，第一个可以合并
+  else if(dst<src && dst+n>src){
+    while(n--)  *dst++ = *src++;
+  }
+  else if(dst>src && src+n>dst){
+    void * dend = dst+n-1;
+    void * send = src+n-1;
+    while(n--) *dend-- = *send--;
+  }
+
+  return addr;
 }
 
+//memcpy()可以假定两个内存区域之间没有重叠
 void* memcpy(void* out, const void* in, size_t n) {
-  return NULL;
+  return memmove(out,in,n);
 }
 
+//The  memcmp()  function compares the first n bytes of the memory areas
 int memcmp(const void* s1, const void* s2, size_t n) {
+  assert(s1 && s2);
+  if(strlen(s1)<n && strlen(s2)>=n) return 1;
+  if(strlen(s2)<n && strlen(s1)>=n) return -1;
+  else{
+    while(n--){
+      if(*s1 != *s2) return *s1-*s2;
+      s1++,s2++;
+    }
+  }
   return 0;
 }
 

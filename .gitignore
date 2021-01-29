@@ -10,6 +10,6 @@
 !.gitignore
 !init.sh
 !nemu/src/isa/mips32/*
-/fceux-am
-
+!fceux-am
+!am-kernels
 

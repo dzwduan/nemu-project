@@ -36,7 +36,7 @@ static inline def_EHelper(sub) {
 
 static inline def_EHelper(cmp) {
   //LeftSRC - SignExtend(RightSRC);
-  rtl_sext(s,dsrc1,dsrc1,dsrc1->width);
+  rtl_sext(s,dsrc1,dsrc1,id_src1->width);
   rtl_sub(s, s0, ddest,dsrc1);
   //operand_write(s,id_dest, s0);  这里无需写入值
   rtl_update_ZFSF(s, s0, id_dest->width);

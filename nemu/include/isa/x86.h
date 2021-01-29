@@ -25,8 +25,80 @@ typedef struct {
       uint8_t _8[2];
     } gpr[8]; //这里是共用空间
 
+    // struct {
+    //   rtlreg_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
+    // };
+
+    // struct{
+    //   uint16_t ax, cx, dx, bx, sp, bp, si, di;
+    // };
     struct {
-      rtlreg_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
+      union{
+        rtlreg_t eax;
+        union{
+          uint16_t ax;
+          struct{
+            uint8_t ah;
+            uint8_t al;
+          };
+        };
+      };
+
+      union{
+        rtlreg_t ecx;
+        union{
+          uint16_t cx;
+          struct{
+            uint8_t ch;
+            uint8_t cl;
+          };
+        };
+      };
+
+
+      union{
+        rtlreg_t edx;
+        union{
+          uint16_t dx;
+          struct{
+            uint8_t dh;
+            uint8_t dl;
+          };
+        };
+      };
+
+
+      union{
+        rtlreg_t ebx;
+        union{
+          uint16_t bx;
+          struct{
+            uint8_t bh;
+            uint8_t bl;
+          };
+        };
+      };
+
+      union{
+        rtlreg_t esp;
+				uint16_t sp;
+      };
+
+      union{
+        rtlreg_t ebp;
+				uint16_t bp;
+      };
+
+      union{
+        rtlreg_t esi;
+				uint16_t si;
+      };
+
+      union{
+        rtlreg_t edi;
+				uint16_t di;
+      };
+
     };
 
   };

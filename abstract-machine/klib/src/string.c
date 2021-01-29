@@ -71,13 +71,16 @@ int strcmp(const char* s1, const char* s2) {
    if S1 is lexicographically less than, equal to or
    greater than S2.  */
 int strncmp(const char* s1, const char* s2, size_t n) {
+  assert(s1 && s2);
   char c1,c2;
-  while(n--){
+  if(n==0) return 0;
+
+  do{
     c1 = *s1++;
     c2 = *s2++;
 
     if(c1=='\0' || c1!=c2) return c1-c2;
-  }
+  }while(--n);
   return c1-c2;
 }
 
@@ -108,18 +111,21 @@ void* memset(void* v,int c,size_t n) {
 void* memmove(void* dst,const void* src,size_t n) {
   assert(dst && src);
   void * addr = dst;
+
+  char * d = (char *)dst;
+  char * s = (char *)src;
   //无重叠
   if((dst>=src && src+n <= dst) || (dst<=src && dst+n<=src)){
     while(n--)
-    *dst++ = *src++;
+    *d++ = *s++;
   }
   //重叠部分，第一个可以合并
   else if(dst<src && dst+n>src){
-    while(n--)  *dst++ = *src++;
+    while(n--)  *d++ = *s++;
   }
   else if(dst>src && src+n>dst){
-    void * dend = dst+n-1;
-    void * send = src+n-1;
+    char * dend = (char*)(dst+n-1);
+    char * send = (char*)(src+n-1);
     while(n--) *dend-- = *send--;
   }
 
@@ -134,12 +140,13 @@ void* memcpy(void* out, const void* in, size_t n) {
 //The  memcmp()  function compares the first n bytes of the memory areas
 int memcmp(const void* s1, const void* s2, size_t n) {
   assert(s1 && s2);
+  char *p1 = (char*)s1,*p2= (char*)s2;
   if(strlen(s1)<n && strlen(s2)>=n) return 1;
   if(strlen(s2)<n && strlen(s1)>=n) return -1;
   else{
     while(n--){
-      if(*s1 != *s2) return *s1-*s2;
-      s1++,s2++;
+      if(*p1 != *p2) return *p1-*p2;
+      p1++,p2++;
     }
   }
   return 0;

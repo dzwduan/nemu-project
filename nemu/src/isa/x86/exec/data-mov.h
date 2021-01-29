@@ -40,15 +40,22 @@ FI;
 */
 static inline def_EHelper(pusha) {
   if(s->isa.is_operand_size_16){
-    rtl_mv(s,s0,&cpu.sp);
-    rtl_push(s,&cpu.ax);
-    rtl_push(s,&cpu.cx);
-    rtl_push(s,&cpu.dx);
-    rtl_push(s,&cpu.bx);
+    *s1 = cpu.sp;  //注意要第一个获取当前sp
+    *s0 = cpu.ax;
     rtl_push(s,s0);
-    rtl_push(s,&cpu.bp);
-    rtl_push(s,&cpu.si);
-    rtl_push(s,&cpu.di);
+    *s0 = cpu.cx;
+    rtl_push(s,s0);
+    *s0 = cpu.dx;
+    rtl_push(s,s0);
+    *s0 = cpu.bx;
+    rtl_push(s,s0);
+    rtl_push(s,s1);
+    *s0 = cpu.bp;
+    rtl_push(s,s0);
+    *s0 = cpu.si;
+    rtl_push(s,s0);
+    *s0 = cpu.di;
+    rtl_push(s,s0);
   }
   else{
     rtl_mv(s,s0,&cpu.esp);
@@ -88,20 +95,22 @@ FI
 */
 static inline def_EHelper(popa) {
   if (s->isa.is_operand_size_16) {
-    rtl_pop(s,&cpu.di);
-    rtl_pop(s,&cpu.si);
-    rtl_pop(s,&cpu.bp);
-    rtl_pop(s,rz);
-    rtl_pop(s,&cpu.bx);
-    rtl_pop(s,&cpu.dx);
-    rtl_pop(s,&cpu.cx);
-    rtl_pop(s,&cpu.ax);
+    //注意类型
+
+    // rtl_pop(s,&cpu.di);
+    // rtl_pop(s,&cpu.si);
+    // rtl_pop(s,&cpu.bp);
+    // rtl_pop(s,s0);
+    // rtl_pop(s,&cpu.bx);
+    // rtl_pop(s,&cpu.dx);
+    // rtl_pop(s,&cpu.cx);
+    // rtl_pop(s,&cpu.ax);
   }
   else{
     rtl_pop(s,&cpu.edi);
     rtl_pop(s,&cpu.esi);
     rtl_pop(s,&cpu.ebp);
-    rtl_pop(s,rz);
+    rtl_pop(s,s0);
     rtl_pop(s,&cpu.ebx);
     rtl_pop(s,&cpu.edx);
     rtl_pop(s,&cpu.ecx);
@@ -115,11 +124,12 @@ Set SP to BP, then pop BP
 */
 static inline def_EHelper(leave) {
   if(s->isa.is_operand_size_16){
-    rtl_mv(s,&cpu.esp,&cpu.bp);
-    rtl_pop(s,&cpu.bp);
+    cpu.sp = *(int16_t *)&cpu.bp;
+    rtl_pop(s,s0);
+    cpu.bp = *s0;
   }
   else{
-    rtl_mv(s,&cpu.esp,&cpu.ebp);
+    cpu.esp = *(int32_t *)&cpu.ebp;
     rtl_pop(s,&cpu.ebp);
   }
   print_asm("leave");
@@ -132,14 +142,14 @@ static inline def_EHelper(leave) {
 */
 static inline def_EHelper(cltd) {
   if (s->isa.is_operand_size_16) {
-    rtl_msb(s,s0,&cpu.ax,2);
-    if(*s0==1) cpu.dx = 0xFFFF;
-    else       cpu.dx = 0x0000;
+    rtl_msb(s,s0,&cpu.eax,2);
+    if(*s0==1) cpu.dx |= 0xFFFF;
+    else       cpu.dx &= 0x0000;
   }
   else {
     rtl_msb(s,s0,&cpu.eax,4);
-    if(*s0==1) cpu.edx = 0xFFFFFFFF;
-    else       cpu.edx = 0x00000000;
+    if(*s0==1) cpu.edx |= 0xFFFFFFFF;
+    else       cpu.edx &= 0x00000000;
   }
   print_asm(s->isa.is_operand_size_16 ? "cwtl" : "cltd");
 }
@@ -149,12 +159,12 @@ sign-extend word in %ax to long in %eax
 */
 static inline def_EHelper(cwtl) {
   if (s->isa.is_operand_size_16) {
-    *s0 = cpu.al;
-    rtl_sext(s,&cpu.ax,s0,1);
+    // extend
+    cpu.ax = *(int8_t*)&cpu.al;
   }
   else {
-    *s0 = cpu.ax;
-    rtl_sext(s,&cpu.eax,s0,2);
+    cpu.eax =*(int16_t*)&cpu.ax; 
+    
   }
   print_asm(s->isa.is_operand_size_16 ? "cbtw" : "cwtl");
 }

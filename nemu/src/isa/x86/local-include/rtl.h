@@ -17,6 +17,7 @@ static inline def_rtl(lr, rtlreg_t* dest, int r, int width) {
   }
 }
 
+
 static inline def_rtl(sr, int r, const rtlreg_t* src1, int width) {
   switch (width) {
     case 4: rtl_mv(s, &reg_l(r), src1); return;
@@ -63,9 +64,9 @@ static inline def_rtl(is_sub_carry, rtlreg_t* dest,
 static inline def_rtl(is_add_overflow, rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
   // dest <- is_overflow(src1 + src2)
-  rtl_msb(s,s0,*src1,width);
-  rtl_msb(s,s1,*src1,width);
-  rtl_msb(s,dest,*res,width);
+  rtl_msb(s,s0,src1,width);
+  rtl_msb(s,s1,src1,width);
+  rtl_msb(s,dest,res,width);
 
   if(*s0== *s1 && *dest != *s0) *dest = 1;
   else *dest = 0;

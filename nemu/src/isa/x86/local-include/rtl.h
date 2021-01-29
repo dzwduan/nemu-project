@@ -65,7 +65,7 @@ static inline def_rtl(is_add_overflow, rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
   // dest <- is_overflow(src1 + src2)
   rtl_msb(s,s0,src1,width);
-  rtl_msb(s,s1,src1,width);
+  rtl_msb(s,s1,src2,width);
   rtl_msb(s,dest,res,width);
 
   if(*s0== *s1 && *dest != *s0) *dest = 1;

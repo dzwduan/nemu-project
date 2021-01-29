@@ -1,13 +1,15 @@
 #include "cc.h"
 
 static inline def_EHelper(add) {
+
   rtl_add(s,s0,ddest,dsrc1);
+  //printf("src = %d , dst = %d , result = %d\n",*dsrc1,*ddest,*s0);
   operand_write(s,id_dest, s0);
   rtl_update_ZFSF(s, s0, id_dest->width);
 
   rtl_is_add_carry(s, s1,s0,dsrc1);
   rtl_set_CF(s, s1);
-  rtl_is_add_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  rtl_is_add_overflow(s,s1,s0,ddest,dsrc1,id_dest->width);
   rtl_set_OF(s, s1);
 
 
@@ -43,7 +45,7 @@ static inline def_EHelper(cmp) {
 
   rtl_is_sub_carry(s, s1,s0,dsrc1);
   rtl_set_CF(s, s1);
-  rtl_is_sub_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  rtl_is_sub_overflow(s,s1,s0,ddest,dsrc1,id_dest->width);
   rtl_set_OF(s, s1);
 
   print_asm_template2(cmp);
@@ -55,9 +57,10 @@ static inline def_EHelper(inc) {
   operand_write(s,id_dest, s0);
   rtl_update_ZFSF(s, s0, id_dest->width);
 
-  rtl_is_add_carry(s, s1,s0,dsrc1);
-  rtl_set_CF(s, s1);
-  rtl_is_add_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  //INC adds 1 to the operand. It does not change the carry flag
+  // rtl_is_add_carry(s, s1,s0,dsrc1);
+  // rtl_set_CF(s, s1);
+  rtl_is_add_overflow(s,s1,s0,ddest,s1,id_dest->width);
   rtl_set_OF(s, s1);
   
   print_asm_template1(inc);
@@ -71,7 +74,8 @@ static inline def_EHelper(dec) {
 
   rtl_is_sub_carry(s, s1,s0,dsrc1);
   rtl_set_CF(s, s1);
-  rtl_is_sub_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  *s1 = 1;
+  rtl_is_sub_overflow(s,s1,s0,ddest,s1,id_dest->width);
   rtl_set_OF(s, s1);
   
   print_asm_template1(dec);
@@ -82,7 +86,7 @@ static inline def_EHelper(neg) {
   rtl_sub(s,s0,rz,ddest);
   operand_write(s,id_dest, s0);
   rtl_update_ZFSF(s, s0, id_dest->width);
-  rtl_is_sub_overflow(s,s1,s0,dsrc1,ddest,id_dest->width);
+  rtl_is_sub_overflow(s,s1,s0,ddest,dsrc1,id_dest->width);
   rtl_set_OF(s, s1);
   if(*ddest == 0)  cpu.eflags.CF=0;
   else  cpu.eflags.CF=1;

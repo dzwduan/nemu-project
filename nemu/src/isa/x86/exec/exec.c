@@ -14,7 +14,7 @@ static inline void set_width(DecodeExecState *s, int width) {
 static inline def_EHelper(gp1) {
   switch (s->isa.ext_opcode) {
     EX(0, add) EMPTY(1) EMPTY(2) EMPTY(3)
-    EMPTY(4) EX(5, sub) EMPTY(6) EMPTY(7)
+    EX(4, and) EX(5, sub) EMPTY(6) EX(7, cmp)
   }
 }
 
@@ -46,7 +46,7 @@ static inline def_EHelper(gp4) {
 static inline def_EHelper(gp5) {
   switch (s->isa.ext_opcode) {
     EMPTY(0) EMPTY(1) EMPTY(2) EMPTY(3)
-    EMPTY(4) EMPTY(5) EMPTY(6) EMPTY(7)
+    EX(4,jmp_rm) EMPTY(5) EX(6,push) EMPTY(7)
   }
 }
 
@@ -64,6 +64,10 @@ static inline def_EHelper(2byte_esc) {
   switch (opcode) {
   /* TODO: Add more instructions!!! */
     IDEX (0x01, gp7_E, gp7)
+
+    IDEXW(0x94, setcc_E, setcc, 1)
+
+    IDEXW(0xb6, mov_E2G, movzx, 1)
     default: exec_inv(s);
   }
 }
@@ -73,10 +77,18 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
 again:
   opcode = instr_fetch(&s->seq_pc, 1); //opcode取第一个字节
   s->opcode = opcode;
+  printf("Now exec instruction 0x%x\n",s->opcode);
   switch (opcode) {
-    EX   (0x0f, 2byte_esc)
+
+    IDEX(0x01,G2E,add)
+
+    EX  (0x0f, 2byte_esc)
 
     IDEX(0x31, G2E, xor)
+
+    IDEX(0x3b, G2E, cmp)
+
+    IDEX(0x47, r, inc)
 
     IDEX(0x50, r, push)
     IDEX(0x51, r, push)
@@ -87,7 +99,12 @@ again:
     IDEX(0x56, r, push)
     IDEX(0x57, r, push)
 
-    IDEX(0x68, I, push)
+    IDEX (0x68,push_SI,push)
+
+    IDEXW(0x6a,push_SI,push,1)
+
+    IDEXW(0x74,J, jcc,1)
+    IDEXW(0x75,J, jcc,1)
 
     IDEXW(0x80, I2E,  gp1, 1)
     IDEX (0x81, I2E,  gp1)
@@ -126,6 +143,8 @@ again:
 
     IDEXW(0xc6, mov_I2E, mov, 1)
     IDEX (0xc7, mov_I2E, mov)
+
+    EX   (0xc9, leave)  //无需译码直接操作
     IDEXW(0xd0, gp2_1_E, gp2, 1)
     IDEX (0xd1, gp2_1_E, gp2)
     IDEXW(0xd2, gp2_cl2E, gp2, 1)

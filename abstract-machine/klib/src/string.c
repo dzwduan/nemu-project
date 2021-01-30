@@ -4,6 +4,7 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 size_t strlen(const char *s) {
+  printf("exec strlen \n");
   const char *eos = s;
   while(*eos++);
   return (eos-s-1);
@@ -12,6 +13,7 @@ size_t strlen(const char *s) {
 //指针有效性，
 //des 和 src 所指内存区域不可以重叠且 des 必须有足够的空间来容纳 src 的字符串
 char *strcpy(char* dst,const char* src) {
+   printf("exec strcpy \n");
   assert(dst && src);
   char * addr = dst;
   while((*dst++ = *src++)!='\0');
@@ -22,7 +24,7 @@ char *strcpy(char* dst,const char* src) {
 //strncpy的功能和strcpy相似，只是它复制时多了一个终止条件。
 //即是未遇到原串的'\0’，如果已经复制了n个字符（n为提供的参数长度），复制同样会终止。
 char* strncpy(char* dst, const char* src, size_t n) {
-  
+   printf("exec strncpy \n");
   char* d = dst;
   const char* s = src;
 
@@ -40,7 +42,8 @@ char* strncpy(char* dst, const char* src, size_t n) {
   return (dst);
 }
 
-char* strcat(char* dst, const char* src) {
+char* strcat(char* dst, const char* src) {\
+   printf("exec strcat \n");
   assert(dst && src);
   char * addr = dst;
   while(*dst++ !='\0') ;
@@ -55,15 +58,18 @@ char* strcat(char* dst, const char* src) {
 refer to glibc
 */
 int strcmp(const char* s1, const char* s2) {
- 
-  unsigned char c1,c2;
+   printf("exec strcmp \n");
+  assert(s1 && s2);
 
-  do{
-    c1 = *s1++;
-    c2 = *s2++;
-    if(c1=='\0') return c1-c2;
-  }while(c1==c2);
-  return c1-c2;
+  while(*s1){
+    if(*s1 == *s2){
+      s1++,s2++;
+    }
+    else{
+      return *s1 - *s2;
+    }
+  }
+  return *s1 - *s2;
 }
 
 /* Compare no more than N characters of S1 and S2,
@@ -71,6 +77,7 @@ int strcmp(const char* s1, const char* s2) {
    if S1 is lexicographically less than, equal to or
    greater than S2.  */
 int strncmp(const char* s1, const char* s2, size_t n) {
+   printf("exec strncmp \n");
   assert(s1 && s2);
   char c1,c2;
   if(n==0) return 0;
@@ -85,6 +92,7 @@ int strncmp(const char* s1, const char* s2, size_t n) {
 }
 
 void* memset(void* v,int c,size_t n) {
+   printf("exec memset \n");
   char *dst = v;
   if(n>=8){
     size_t xlen;
@@ -109,6 +117,7 @@ void* memset(void* v,int c,size_t n) {
 
 //考虑区域重叠
 void* memmove(void* dst,const void* src,size_t n) {
+   printf("exec memmove \n");
   assert(dst && src);
   void * addr = dst;
 
@@ -134,11 +143,13 @@ void* memmove(void* dst,const void* src,size_t n) {
 
 //memcpy()可以假定两个内存区域之间没有重叠
 void* memcpy(void* out, const void* in, size_t n) {
+   printf("exec memcpy \n");
   return memmove(out,in,n);
 }
 
 //The  memcmp()  function compares the first n bytes of the memory areas
 int memcmp(const void* s1, const void* s2, size_t n) {
+   printf("exec memcpy \n");
   assert(s1 && s2);
   char *p1 = (char*)s1,*p2= (char*)s2;
   if(strlen(s1)<n && strlen(s2)>=n) return 1;

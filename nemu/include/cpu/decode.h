@@ -27,7 +27,7 @@ typedef struct {
   vaddr_t jmp_pc;
   Operand src1, dest, src2; //源操作数和目的操作数
   int width;
-  rtlreg_t tmp_reg[4];
+  rtlreg_t tmp_reg[5];
   ISADecodeInfo isa; //isa相关信息
 } DecodeExecState;
 

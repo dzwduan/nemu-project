@@ -67,3 +67,25 @@ static inline def_EHelper(call_rm) {
   }
   print_asm("call *%s", id_dest->str);
 }
+
+//根据cx的值，重复执行后面的指令
+static inline def_EHelper(rep){
+  if(cpu.eax==0) return;
+  if(s->isa.is_operand_size_16){
+    *s0 = cpu.cx;
+    while((*s0)--){
+      *s2 = cpu.pc;
+      *t0=isa_exec_once();
+      cpu.pc= *s2;
+    }
+  }
+    else{
+      *s0 = cpu.eax;
+      while((*s0)--){
+        *s2 = cpu.pc;
+        *t0=isa_exec_once();
+        cpu.pc= *s2;
+      }
+    }
+    print_asm("rep ");
+}

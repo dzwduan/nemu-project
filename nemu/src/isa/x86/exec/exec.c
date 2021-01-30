@@ -17,14 +17,11 @@ static inline void set_width(DecodeExecState *s, int width)
 static inline def_EHelper(gp1)
 {
   switch (s->isa.ext_opcode)
-  {
-    EX(0, add)
-    EMPTY(1)
-    EMPTY(2)
-    EMPTY(3)
-    EX(4, and)
-    EX(5, sub)
-    EMPTY(6) EX(7, cmp)
+  { //已经写过译码部分
+    EXW(0, add, id_dest->width) EXW(1, or,  id_dest->width) 
+    EXW(2, adc, id_dest->width) EXW(3, sbb, id_dest->width)
+    EXW(4, and, id_dest->width) EXW(5, sub, id_dest->width)
+    EXW(6, xor, id_dest->width) EXW(7, cmp, id_dest->width)
   }
 }
 
@@ -40,7 +37,7 @@ static inline def_EHelper(gp2)
     EMPTY(2)
     EMPTY(3)
     EX(4,shl)
-    EMPTY(5)
+    EX(5,shr)
     EMPTY(6)
     EX(7,sar)
   }
@@ -48,10 +45,10 @@ static inline def_EHelper(gp2)
 
 /* 0xf6, 0xf7 */
 static inline def_EHelper(gp3)
-{
+{ //printf(" %d\n",s->isa.ext_opcode);
   switch (s->isa.ext_opcode)
   {
-    EMPTY(0)
+    IDEXW(0,test_I,test,id_dest->width)
     EMPTY(1)
     EX(2,not)
     EX(3,neg)
@@ -68,7 +65,7 @@ static inline def_EHelper(gp4)
   switch (s->isa.ext_opcode)
   {
     EX(0,inc)
-    EMPTY(1)
+    EX(1,dec)
     EMPTY(2)
     EMPTY(3)
     EMPTY(4)
@@ -353,11 +350,12 @@ again:
     IDEXW(0xc0, gp2_Ib2E, gp2, 1)
     IDEX(0xc1, gp2_Ib2E, gp2)
     EX(0xc3, ret)
-
     IDEXW(0xc6, mov_I2E, mov, 1)
     IDEX(0xc7, mov_I2E, mov)
-
     EX(0xc9, leave) //无需译码直接操作
+    //IDEXW(0xcd, I, int, 1)
+    //EX   (0xcf, iret)
+
     IDEXW(0xd0, gp2_1_E, gp2, 1)
     IDEX(0xd1, gp2_1_E, gp2)
     IDEXW(0xd2, gp2_cl2E, gp2, 1)
@@ -367,6 +365,7 @@ again:
     IDEX(0xe8, J, call)
     IDEX(0xe9, J, jmp)
     IDEXW(0xeb, J, jmp, 1)
+    EX   (0xf3, rep)
     IDEXW(0xf6, E, gp3, 1)
     IDEX(0xf7, E, gp3)
     IDEXW(0xfe, E, gp4, 1)

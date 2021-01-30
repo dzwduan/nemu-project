@@ -36,7 +36,7 @@ static inline def_EHelper(int) {
 }
 
 static inline def_EHelper(iret) {
-  TODO();
+  
   print_asm("iret");
 
 #ifndef __DIFF_REF_NEMU__

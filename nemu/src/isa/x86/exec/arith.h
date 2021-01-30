@@ -4,7 +4,7 @@ static inline def_EHelper(add) {
 
   rtl_add(s,s0,ddest,dsrc1);
   //printf("src = %d , dst = %d , result = %d\n",*dsrc1,*ddest,*s0);
-  operand_write(s,id_dest, s0);
+ 
   rtl_update_ZFSF(s, s0, id_dest->width);
 
   rtl_is_add_carry(s, s1,s0,dsrc1);
@@ -12,6 +12,7 @@ static inline def_EHelper(add) {
   rtl_is_add_overflow(s,s1,s0,ddest,dsrc1,id_dest->width);
   rtl_set_OF(s, s1);
 
+   operand_write(s,id_dest, s0);
 
   print_asm_template2(add);
 }
@@ -20,8 +21,7 @@ static inline def_EHelper(sub) {
   
   //s1 = dest-src
   rtl_sub(s, s1, ddest,dsrc1);
-  //id_dest = s1
-  operand_write(s,id_dest,s1);
+ 
   //设置zf sf位
   rtl_update_ZFSF(s, s1, id_dest->width);
   //是否进位 s0存储
@@ -29,9 +29,12 @@ static inline def_EHelper(sub) {
   //eflags.cf = s0
   rtl_set_CF(s,s0);
   // dest <- is_overflow(src1 - src2)
-  rtl_is_sub_overflow(s,s1,s0,ddest,dsrc1,id_dest->width);
+  rtl_is_sub_overflow(s,s2,s1,ddest,dsrc1,id_dest->width);
 
-  rtl_set_OF(s,s1);  
+  rtl_set_OF(s,s2);  
+
+  //id_dest = s1
+  operand_write(s,id_dest,s1);
 
   print_asm_template2(sub);
 }

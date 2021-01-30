@@ -312,7 +312,7 @@ static inline def_DHelper(out_a2dx) {
 //add xchg
 static inline def_DHelper(xchg_a2r) {
   decode_op_a(s, id_src1, true);
-  decode_op_r(s, id_dest, true;)
+  decode_op_r(s, id_dest, true);
 }
 
 static inline void operand_write(DecodeExecState *s, Operand *op, rtlreg_t* src) {

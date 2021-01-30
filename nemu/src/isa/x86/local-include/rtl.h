@@ -8,6 +8,7 @@
 
 static inline int sign(const rtlreg_t* val , int width);
 
+
 static inline def_rtl(lr, rtlreg_t* dest, int r, int width) {
   switch (width) {
     case 4: rtl_mv(s, dest, &reg_l(r)); return;

@@ -2,9 +2,6 @@
 #include <monitor/monitor.h>
 #include <monitor/difftest.h>
 
-def_EHelper(nop) {
-  print_asm("nop");
-}
 
 def_EHelper(inv) {
   /* invalid opcode */

@@ -198,9 +198,17 @@ static inline def_EHelper(movsx)
   print_asm_template2(movsx);
 }
 
+//[(E)SI] to ES:[(E)DI]
+//这里寄存器也是内存模拟，用完后要加上地址移动
 static inline def_EHelper(movsb)
 {
-  
+  rtl_lr(s,s0,R_ESI,id_dest->width);
+  rtl_sr(s,R_EDI,s0,id_dest->width);
+  *s1 = id_dest->width;
+  rtl_add(s,&cpu.esi,&cpu.esi,s1);
+  rtl_add(s,&cpu.edi,&cpu.edi,s1);
+  print_asm_template2(mov);
+
 }
 
 static inline def_EHelper(movzx)
@@ -222,4 +230,12 @@ static inline def_EHelper(xchg)
   *s0 = *ddest;
   operand_write(s, id_dest, dsrc1);
   operand_write(s, id_src1, s0);
+}
+
+static inline def_EHelper(r2cr) {
+  *dsrc1 = *ddest;
+}
+
+static inline def_EHelper(cr2r) {
+  *ddest = *dsrc1;
 }

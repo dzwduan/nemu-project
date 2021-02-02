@@ -174,6 +174,7 @@ again:
   switch (opcode)
   {
     //0x00-0x05 add
+    IDEXW(0x00, G2E, add, 1)
     IDEX(0x01, G2E, add)
     IDEXW(0x02, E2G, add, 1)
     IDEX(0x03, E2G, add)

@@ -29,7 +29,7 @@ static inline void rtl_setcc(DecodeExecState *s, rtlreg_t* dest, uint32_t subcod
   // TODO: Query EFLAGS to determine whether the condition code is satisfied.
   // dest <- ( cc is satisfied ? 1 : 0)
   // refer to https://nju-projectn.github.io/i386-manual/appd.htm
-  printf("subcode is %d\n",subcode);
+  printf("subcode is %d\n",subcode&0xe);
   switch (subcode & 0xe) {
     case CC_O:  *dest = cpu.eflags.OF;break;
     case CC_B:  *dest = cpu.eflags.CF == 1;break;

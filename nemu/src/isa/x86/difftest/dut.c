@@ -19,20 +19,9 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
 
   if((cpu.eflags.eflags_value&ref_r->eflags.eflags_value) == cpu.eflags.eflags_value)
   return true;
-  // if(ref_r->eflags.CF == cpu.eflags.CF&&ref_r->eflags.ZF == cpu.eflags.ZF
-  //   &&ref_r->eflags.SF == cpu.eflags.SF&&ref_r->eflags.OF == cpu.eflags.OF
-  //   &&ref_r->eflags.IF == cpu.eflags.IF)
-  //   flag[9] = true;
-  // else {
-  //   flag[9] = false;
-  //   if(ref_r->eflags.CF != cpu.eflags.CF) Log("eflags CF wrong = %d\n",cpu.eflags.CF);
-  //   if(ref_r->eflags.ZF != cpu.eflags.ZF) Log("eflags ZF wrong = %d\n",cpu.eflags.ZF);
-  //   if(ref_r->eflags.OF != cpu.eflags.OF) Log("eflags OF wrong = %d\n",cpu.eflags.OF);
-  //   if(ref_r->eflags.SF != cpu.eflags.SF) Log("eflags SF wrong = %d\n",cpu.eflags.SF);
-  //   if(ref_r->eflags.IF != cpu.eflags.IF) Log("eflags IF wrong = %d\n",cpu.eflags.IF);
-  // } 
-  printf("cpu :OF:%x ZF:%x SF:%x CF:%x IF:%x\n", cpu.eflags.OF, cpu.eflags.ZF, cpu.eflags.SF, cpu.eflags.CF, cpu.eflags.IF);
-  printf("ref :OF:%x ZF:%x SF:%x CF:%x IF:%x\n", ref_r->eflags.OF, ref_r->eflags.ZF, ref_r->eflags.SF, ref_r->eflags.CF, ref_r->eflags.IF);
+
+  // printf("cpu :OF:%x ZF:%x SF:%x CF:%x IF:%x\n", cpu.eflags.OF, cpu.eflags.ZF, cpu.eflags.SF, cpu.eflags.CF, cpu.eflags.IF);
+  // printf("ref :OF:%x ZF:%x SF:%x CF:%x IF:%x\n", ref_r->eflags.OF, ref_r->eflags.ZF, ref_r->eflags.SF, ref_r->eflags.CF, ref_r->eflags.IF);
   for(int i = 0;i < 9;i++)
   {
     if(!flag[i]) return false;

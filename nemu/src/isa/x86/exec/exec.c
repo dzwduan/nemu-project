@@ -285,6 +285,8 @@ again:
     IDEXW(0x74, J, jcc, 1)
     IDEXW(0x75, J, jcc, 1)
     IDEXW(0x76, J, jcc, 1)
+    // CASE_ENTRY(0x76, concat(decode_, J), concat(exec_, jcc), 1)
+    // case 0x76: set_width(s, 1); decode_J(s); exec_jcc(s); break;
     IDEXW(0x77, J, jcc, 1)
     IDEXW(0x78, J, jcc, 1)
     IDEXW(0x79, J, jcc, 1)
@@ -356,7 +358,7 @@ again:
     EX(0xc9, leave) //无需译码直接操作
     //IDEXW(0xcd, I, int, 1)
     //EX   (0xcf, iret)
-
+    
     IDEXW(0xd0, gp2_1_E, gp2, 1)
     IDEX(0xd1, gp2_1_E, gp2)
     IDEXW(0xd2, gp2_cl2E, gp2, 1)

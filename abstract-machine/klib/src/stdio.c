@@ -43,10 +43,10 @@ int printf(const char *fmt, ...) {
   int ret = vsprintf(out,fmt,ap);
   va_end(ap);
   size_t i = 0;
-    while (out[i] != '\0') {
-        putch(out[i]);
-        i++;
-    }
+  while (out[i] != '\0') {
+    putch(out[i]);
+    i++;
+  }
   return ret;
 }
 
@@ -54,7 +54,6 @@ int printf(const char *fmt, ...) {
 int vsprintf(char *out, const char *fmt, va_list ap) {
   int arg_int;
   char *arg_s;
-  char arg_c;
   int len=0;
   int flag = 0;
   int base=10;
@@ -67,8 +66,8 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         break;
       case 'c':
         if(flag == 1){ 
-          arg_c = va_arg(ap,int);
-          *out++ = arg_c;
+          arg_int = va_arg(ap,int);
+          *out++ = arg_int+'0';
           pos++;
         }
         flag = 0;
@@ -93,6 +92,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         }
         flag = 0;
         break;
+      case 'p':
       case 'x': 
         if(flag == 1){
           base=16;
@@ -115,7 +115,12 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 }
 
 int sprintf(char *out, const char *fmt, ...) {
-  return 0;
+  va_list ap;
+  int length;
+  va_start(ap, fmt);
+  length = vsprintf(out,fmt,ap);
+  va_end(ap);
+  return length;
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {

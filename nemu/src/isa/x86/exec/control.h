@@ -3,14 +3,17 @@
 
 static inline def_EHelper(jmp) {
   // the target address is calculated at the decode stage
-  rtl_j(s, s->jmp_pc);
-
+  if(s->isa.is_operand_size_16)
+  {
+    rtl_andi(s,&s->jmp_pc,&s->jmp_pc,0xFFFF);
+  }
+  rtl_j(s,s->jmp_pc);
   print_asm("jmp %x", s->jmp_pc);
 }
 
 static inline def_EHelper(jcc) {
   // the target address is calculated at the decode stage
-  printf("pc : 0x%x\n",cpu.pc);
+  printf("exec jcc pc : 0x%x\n",cpu.pc);
   uint32_t cc = s->opcode & 0xf;
   printf("cc : %d\n",cc);
   rtl_setcc(s, s0, cc);
@@ -20,6 +23,7 @@ static inline def_EHelper(jcc) {
 }
 
 static inline def_EHelper(jmp_rm) {
+  printf("exec jmp rm\n");
   rtl_jr(s, ddest);
   //s->is_jmp=0;
   print_asm("jmp *%s", id_dest->str);
@@ -28,15 +32,15 @@ static inline def_EHelper(jmp_rm) {
 static inline def_EHelper(call) {
   // the target address is calculated at the decode stage
   rtl_push(s,&s->seq_pc);
-  //s->is_jmp=0;
-  s->seq_pc=s->jmp_pc;
+  
+  rtl_j(s,s->jmp_pc);
   print_asm("call %x", s->jmp_pc);
 }
 
 static inline def_EHelper(ret) {
   rtl_pop(s,&s->jmp_pc);
   //s->is_jmp=0;
-  s->seq_pc=s->jmp_pc;
+  rtl_j(s, s->jmp_pc);
   print_asm("ret");
 }
 

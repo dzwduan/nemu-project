@@ -17,12 +17,13 @@ static inline def_rtl(mv, rtlreg_t* dest, const rtlreg_t *src1) {
 
 static inline def_rtl(not, rtlreg_t *dest, const rtlreg_t* src1) {
   // dest <- ~src1 异或1等价于取反
-  rtl_xori(s, dest, src1,-1);
+  //rtl_xori(s, dest, src1,-1);
+   rtl_xori(s, dest, src1,-1);
 }
 
 static inline def_rtl(neg, rtlreg_t *dest, const rtlreg_t* src1) {
   // dest <- -src1
-  rtl_sub(s, dest, rz,src1);
+   rtl_sub(s, dest, rz,src1);
 }
 
 //符号位拓展
@@ -43,15 +44,16 @@ static inline def_rtl(zext, rtlreg_t* dest, const rtlreg_t* src1, int width) {
     case 1 : *dest = (uint32_t)(uint8_t)(*src1) ;break;
     case 2 : *dest = (uint32_t)(uint16_t)(*src1);break;
     case 4 : *dest = (uint32_t)(*src1);          break;
+    default: assert(0);
   }
 }
 
 //获取符号位
 static inline def_rtl(msb, rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- src1[width * 8 - 1]
-  if(width == 4) *dest = *src1>>31;
-  else if(width == 2) {rtl_andi(s,dest,src1,0xFFFF); *dest = *dest>>15;}
-  else if(width == 1) {rtl_andi(s,dest,src1,0xFF);   *dest = *dest>>7; }
+  if(width == 4) *dest = *src1>>31&1;
+  else if(width == 2) {rtl_andi(s,dest,src1,0xFFFF); *dest = *dest>>15&1;}
+  else if(width == 1) {rtl_andi(s,dest,src1,0xFF);   *dest = *dest>>7&1; }
   else assert(0);
 }
 

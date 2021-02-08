@@ -113,6 +113,7 @@ static inline def_EHelper(popa)
     // rtl_pop(s,&cpu.dx);
     // rtl_pop(s,&cpu.cx);
     // rtl_pop(s,&cpu.ax);
+    TODO();
   }
   else
   {
@@ -142,7 +143,8 @@ static inline def_EHelper(leave)
   else
   {
     cpu.esp = *(int32_t *)&cpu.ebp;
-    rtl_pop(s, &cpu.ebp);
+    rtl_pop(s, s0);
+    cpu.ebp = *s0;
   }
   print_asm("leave");
 }

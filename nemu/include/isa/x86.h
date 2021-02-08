@@ -120,10 +120,11 @@ typedef struct {
       uint32_t IF:1;
       uint32_t   :1;
       uint32_t OF:1;
-    }eflags;
+      uint32_t :20;
+    };
 
-    uint32_t eflags_val;
-  };
+    uint32_t eflags_value;
+  }eflags;
 
 } x86_CPU_state;
 

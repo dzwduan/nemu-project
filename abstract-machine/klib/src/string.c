@@ -32,7 +32,7 @@ char *strncpy(char *dst, const char *src, size_t n)
   return addr;
 }
 
-char *strcat(char *dst, const char *src)
+char * strcat(char *dst, const char *src)
 {
   printf("exec strcat \n");
   assert(dst && src);
@@ -72,7 +72,6 @@ int strcmp(const char *s1, const char *s2)
    greater than S2.  */
 int strncmp(const char *s1, const char *s2, size_t n)
 {
-
   assert(n>=0);
 
   while(n>0 && *s1 && *s1++==*s2++);

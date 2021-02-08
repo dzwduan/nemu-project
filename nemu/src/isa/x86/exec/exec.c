@@ -109,7 +109,7 @@ static inline def_EHelper(2byte_esc)
 {
   uint8_t opcode = instr_fetch(&s->seq_pc, 1);
   s->opcode = opcode;
-  printf("Now exec instruction 0x0f %x\n", s->opcode);
+  //printf("Now exec instruction 0x0f %x\n", s->opcode);
   switch (opcode)
   {
     /* TODO: Add more instructions!!! */
@@ -170,7 +170,7 @@ static inline void fetch_decode_exec(DecodeExecState *s)
 again:
   opcode = instr_fetch(&s->seq_pc, 1); //opcode取第一个字节
   s->opcode = opcode;
-  printf("Now exec instruction 0x%x\n", s->opcode);
+  printf("Now exec instruction 0x%x ,eax is %d\n", s->opcode,cpu.eax);
   switch (opcode)
   {
     //0x00-0x05 add
@@ -192,8 +192,8 @@ again:
     //0x10-0x15 adc
     IDEXW(0x10, G2E, adc, 1)
     IDEX(0x11, G2E, adc)
-    IDEXW(0x12, G2E, adc, 1)
-    IDEX(0x13, G2E, adc)
+    IDEXW(0x12, E2G, adc, 1)
+    IDEX(0x13, E2G, adc)
     IDEXW(0x14, I2a, adc, 1)
     IDEX(0x15, I2a, adc)
     //0x18-0x1d sbb
@@ -206,8 +206,8 @@ again:
     //0x20 - 0x25 and
     IDEXW(0x20, G2E, and, 1)
     IDEX(0x21, G2E, adc)
-    IDEXW(0x22, G2E, and, 1)
-    IDEX(0x23, G2E, and)
+    IDEXW(0x22, E2G, and, 1)
+    IDEX(0x23, E2G, and)
     IDEXW(0x24, I2a, and, 1)
     IDEX(0x25, I2a, and)
     //0x28 - 0x2d sub
@@ -220,8 +220,8 @@ again:
     //0x30 - 0x35 xor
     IDEXW(0x30, G2E, xor, 1)
     IDEX(0x31, G2E, xor)
-    IDEXW(0x32, G2E, xor, 1)
-    IDEX(0x33, G2E, xor)
+    IDEXW(0x32,E2G, xor,  1)
+    IDEX(0x33, E2G, xor)
     IDEXW(0x34, I2a, xor, 1)
     IDEX(0x35, I2a, xor)
     //0x38 - 0x3d cmp
@@ -366,12 +366,17 @@ again:
     IDEX(0xe8, J, call)
     IDEX(0xe9, J, jmp)
     IDEXW(0xeb, J, jmp, 1)
+    IDEXW(0xec, in_dx2a, in, 1)
+    IDEX (0xed, in_dx2a, in)
+    IDEXW(0xee, out_a2dx, out, 1)
+    IDEX (0xef, out_a2dx, out)
     EX   (0xf3, rep)
     IDEXW(0xf6, E, gp3, 1)
     IDEX(0xf7, E, gp3)
     IDEXW(0xfe, E, gp4, 1)
     IDEX(0xff, E, gp5)
   case 0x66:
+    //printf("0x66 ");
     s->isa.is_operand_size_16 = true;
     goto again; //0x66要改变宽度
   default:

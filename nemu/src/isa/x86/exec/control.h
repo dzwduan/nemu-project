@@ -10,7 +10,9 @@ static inline def_EHelper(jmp) {
 
 static inline def_EHelper(jcc) {
   // the target address is calculated at the decode stage
+  printf("pc : 0x%x\n",cpu.pc);
   uint32_t cc = s->opcode & 0xf;
+  printf("cc : %d\n",cc);
   rtl_setcc(s, s0, cc);
   rtl_jrelop(s, RELOP_NE, s0, rz, s->jmp_pc);
 
@@ -19,21 +21,21 @@ static inline def_EHelper(jcc) {
 
 static inline def_EHelper(jmp_rm) {
   rtl_jr(s, ddest);
-
+  //s->is_jmp=0;
   print_asm("jmp *%s", id_dest->str);
 }
 
 static inline def_EHelper(call) {
   // the target address is calculated at the decode stage
   rtl_push(s,&s->seq_pc);
-  s->is_jmp=0;
+  //s->is_jmp=0;
   s->seq_pc=s->jmp_pc;
   print_asm("call %x", s->jmp_pc);
 }
 
 static inline def_EHelper(ret) {
   rtl_pop(s,&s->jmp_pc);
-  s->is_jmp=0;
+  //s->is_jmp=0;
   s->seq_pc=s->jmp_pc;
   print_asm("ret");
 }
@@ -70,22 +72,23 @@ static inline def_EHelper(call_rm) {
 
 //根据cx的值，重复执行后面的指令
 static inline def_EHelper(rep){
-  if(cpu.eax==0) return;
-  if(s->isa.is_operand_size_16){
-    *s0 = cpu.cx;
-    while((*s0)--){
-      *s2 = cpu.pc;
-      *t0=isa_exec_once();
-      cpu.pc= *s2;
-    }
-  }
-    else{
-      *s0 = cpu.eax;
-      while((*s0)--){
-        *s2 = cpu.pc;
-        *t0=isa_exec_once();
-        cpu.pc= *s2;
-      }
-    }
-    print_asm("rep ");
+  // if(cpu.eax==0) return;
+  // if(s->isa.is_operand_size_16){
+  //   *s0 = cpu.cx;
+  //   while((*s0)--){
+  //     *s2 = cpu.pc;
+  //     *t0=isa_exec_once();
+  //     cpu.pc= *s2;
+  //   }
+  // }
+  //   else{
+  //     *s0 = cpu.eax;
+  //     while((*s0)--){
+  //       *s2 = cpu.pc;
+  //       *t0=isa_exec_once();
+  //       cpu.pc= *s2;
+  //     }
+  //   }
+  //   print_asm("rep ");
+  cpu.pc+=3;
 }

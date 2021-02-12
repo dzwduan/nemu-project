@@ -63,11 +63,12 @@ static inline def_DopHelper(SI) {
    operand_imm(s, op, load_val, ???, op->width);
    */
   
-  op->simm = instr_fetch(&s->seq_pc,op->width);
-  int num = 32-op->width * 8;
-  op->simm = (op->simm << num)>>num;
-  
-  operand_imm(s, op, load_val,op->simm, op->width);
+  // op->simm = instr_fetch(&s->seq_pc,op->width);
+  // int num = 32-op->width * 8;
+  // op->simm = (op->simm << num)>>num;
+  word_t imm = instr_fetch(&s->seq_pc, op->width);
+  rtl_sext(s,&imm,&imm,op->width);
+  operand_imm(s, op, load_val, imm, op->width);
 }
 
 /* I386 manual does not contain this abbreviation.
@@ -281,6 +282,7 @@ static inline def_DHelper(J) {
   decode_op_SI(s, id_dest, false);
   // the target address can be computed in the decode stage
   s->jmp_pc = id_dest->simm + s->seq_pc;
+  //printf("jmp-pc is 0x%x\n",s->jmp_pc);
 }
 
 static inline def_DHelper(push_SI) {

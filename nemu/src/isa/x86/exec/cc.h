@@ -30,16 +30,17 @@ static inline void rtl_setcc(DecodeExecState *s, rtlreg_t* dest, uint32_t subcod
   // dest <- ( cc is satisfied ? 1 : 0)
   // refer to https://nju-projectn.github.io/i386-manual/appd.htm
   printf("subcode is %d\n",subcode&0xe);
+  printf("choose case :%d\n",subcode & 0xe);
   switch (subcode & 0xe) {
     case CC_O:  *dest = cpu.eflags.OF;break;
     case CC_B:  *dest = cpu.eflags.CF == 1;break;
     case CC_E:  *dest = cpu.eflags.ZF == 1; break;
-    case CC_BE: *dest = (cpu.eflags.CF == 1 || cpu.eflags.ZF == 1); break;
+    case CC_BE: *dest = (cpu.eflags.CF == 1 || cpu.eflags.ZF == 1)?1:0; break;
     case CC_S:  *dest = cpu.eflags.SF == 1; break;
     case CC_L:  *dest = (cpu.eflags.SF != cpu.eflags.OF); break; //xor 使用 !=
-    case CC_LE: *dest = (cpu.eflags.ZF == 1) || (cpu.eflags.SF != cpu.eflags.OF); break;
+    case CC_LE: *dest = (cpu.eflags.ZF == 1) || (cpu.eflags.SF != cpu.eflags.OF)?1:0; break;
     default:    panic("should not reach here");
-    case CC_P:  panic("PF is not supported");
+    case CC_P:  panic("PF is not supported");  
   }
 
   if (invert) {

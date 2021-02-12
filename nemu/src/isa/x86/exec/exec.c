@@ -116,8 +116,8 @@ static inline def_EHelper(2byte_esc)
     IDEX(0x01, gp7_E, gp7)
     //he reg field within the ModRM byte specifies
     // which of the special registers in each category is involved
-    // IDEX(0x20, E2G, cr2r)
-    // IDEX(0x22, G2E, r2cr)
+    IDEX(0x20, E2G, cr2r)
+    IDEX(0x22, G2E, r2cr)
 
     IDEX(0x80, J, jcc)
     IDEX(0x81, J, jcc)
@@ -157,7 +157,7 @@ static inline def_EHelper(2byte_esc)
     IDEXW(0xb6, mov_E2G, movzx, 1)
     IDEXW(0xb7, mov_E2G, movzx, 2)
     IDEXW(0xbe, mov_E2G, movsx, 1)
-    IDEX(0xbd, E2G, bsr)
+    IDEX(0xbd,  E2G,          bsr)
     IDEXW(0xbf, mov_E2G, movsx, 2)
   default:
     exec_inv(s);
@@ -170,16 +170,16 @@ static inline void fetch_decode_exec(DecodeExecState *s)
 again:
   opcode = instr_fetch(&s->seq_pc, 1); //opcode取第一个字节
   s->opcode = opcode;
-  printf("Now exec instruction 0x%x ,eax is %d\n", s->opcode,cpu.eax);
+  //printf("Now exec instruction 0x%x\n", s->opcode);
   switch (opcode)
   {
     //0x00-0x05 add
     IDEXW(0x00, G2E, add, 1)
-    IDEX(0x01, G2E, add)
+    IDEX (0x01, G2E, add)
     IDEXW(0x02, E2G, add, 1)
-    IDEX(0x03, E2G, add)
+    IDEX (0x03, E2G, add)
     IDEXW(0x04, I2a, add, 1)
-    IDEX(0x05, I2a, add)
+    IDEX (0x05, I2a, add)
     //0x08-0x0d or
     IDEXW(0x08, G2E, or, 1)
     IDEX(0x09, G2E, or)
@@ -372,7 +372,7 @@ again:
     IDEX (0xed, in_dx2a, in)
     IDEXW(0xee, out_a2dx, out, 1)
     IDEX (0xef, out_a2dx, out)
-    EX   (0xf3, rep)
+    EX   (0xf3, endbr32)
     IDEXW(0xf6, E, gp3, 1)
     IDEX(0xf7, E, gp3)
     IDEXW(0xfe, E, gp4, 1)

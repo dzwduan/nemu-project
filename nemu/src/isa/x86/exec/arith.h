@@ -52,7 +52,7 @@ static inline def_EHelper(cmp) {
   //operand_write(s,id_dest, s0);  这里无需写入值
   rtl_update_ZFSF(s, s0, id_dest->width);
 
-  rtl_is_sub_carry(s, s1,s0,dsrc1);
+  rtl_is_sub_carry(s, s1,ddest,dsrc1);
   rtl_set_CF(s, s1);
   rtl_is_sub_overflow(s,s1,s0,ddest,dsrc1,id_dest->width);
   rtl_set_OF(s, s1);
@@ -111,7 +111,7 @@ static inline def_EHelper(addl) {
 }
 
 static inline def_EHelper(adc) {
-  printf("before adc : ddest = %d, dsrc1 = %d\n",*ddest,*dsrc1);
+  //printf("before adc : ddest = %d, dsrc1 = %d\n",*ddest,*dsrc1);
   //s0=cf
   rtl_get_CF(s, s0);
   //s0' = cf+dsrc1
@@ -135,7 +135,7 @@ static inline def_EHelper(adc) {
   rtl_set_CF(s, s0);
   operand_write(s, id_dest, s1);
 
-  printf("after adc : answer is %d\n",*ddest);
+  //printf("after adc : answer is %d\n",*ddest);
   print_asm_template2(adc);
 }
 

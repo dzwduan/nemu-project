@@ -5,64 +5,36 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-char buf[4096];
-int itoa(int n, char *s, int base);
+char buf[1024];
 
+#define is_digit(x) ((x)>='0'&&(x)<='9')
+//支持负数
+int itoa(int num, int base,char * ret){
 
-char* atoi_b(char* nptr, int *num) {
-  int x = 0;
-  while (*nptr == ' ') { nptr ++; }
-  while (*nptr >= '0' && *nptr <= '9') {
-    x = x * 10 + *nptr - '0';
-    nptr ++;
+  int flag = 0;
+  if(num<0) flag =1, num=-num;
+
+  char buf[16];
+  int i=0,j=0;
+  while(num>0){
+    buf[i++] = num%base + '0';
+    num/=10;
   }
-  *num = x;
-  return nptr;
-}
 
-int atoi(const char* nptr) {
-  int x = 0;
-  while (*nptr == ' ') { nptr ++; }
-  while (*nptr >= '0' && *nptr <= '9') {
-    x = x * 10 + *nptr - '0';
-    nptr ++;
+  if(flag == 1) buf[i++]='-';
+  buf[i]='\0';
+
+  for(j=i-1;j>=0;j--){
+    if(is_digit(buf[i-j-1]) || buf[i-j-1]=='-')
+      ret[j] = buf[i-j-1];
+    else
+      ret[j] = buf[i-j-1]-'9'+'a'-1;
   }
-  return x;
+  ret[i] = '\0';
+ 
+  return i;
 }
 
-
-int sscanf(const char *src, const char *str, ...) {
-    va_list vl;
-    int i = 0, j = 0, ret = 0;
-    char buff[100] = {0};
-    strcpy(buff, src);
-    va_start(vl, str);
-    i = 0;
-    while (str && str[i]) {
-        if (str[i] == '%') {
-            i++;
-            switch (str[i]) {
-            case 'c': {
-                *(char *)va_arg(vl, char *) = buff[j];
-                j++;
-                ret++;
-                break;
-            }
-            case 'd': {
-                j += atoi_b(&buff[j], (int *)va_arg(vl, int *)) - &buff[j];
-                ret++;
-                break;
-            }
-            }
-        } else {
-            buff[j] = str[i];
-            j++;
-        }
-        i++;
-    }
-    va_end(vl);
-    return ret;
-}
 
 int printf(const char *fmt, ...) {
     va_list ap;
@@ -78,95 +50,55 @@ int printf(const char *fmt, ...) {
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
-    size_t i = 0;
-    int d;
-    char *s;
-    char c;
-    size_t pos = 0;
-    size_t len, addlen;
-    while (fmt[i] != '\0' && i < 256) {
-        switch (fmt[i]) {
-        case '%':
-            switch (fmt[++i]) {
-            case 'c':
-                c = va_arg(ap, int);
-                strncpy(out + pos, &c, 1);
-                pos++;
-                break;
-            case 's':
-                s = va_arg(ap, char *);
-                len = strlen(s);
-                strncpy(out + pos, s, len);
-                pos += len;
-                break;
-            case '0':
-                addlen = fmt[i + 1] - '0';
-                d = va_arg(ap, int);
-                len = itoa(d, out + pos, 10);
-                if (len < addlen) {
-                    addlen -= len;
-                    while (addlen > 0) {
-                        out[pos] = '0';
-                        pos++;
-                        addlen--;
-                    }
-                    itoa(d, out + pos, 10);
-                }
-                pos += len;
-                i += 2;
-                break;
-            case 'd':
-                d = va_arg(ap, int);
-                len = itoa(d, out + pos, 10);
-                pos += len;
-                break;
-            case 'x':
-                d = va_arg(ap, int);
-                len = itoa(d, out + pos, 16);
-                pos += len;
-                break;
-            case 'p':
-                d = va_arg(ap, int);
-                len = itoa(d, out + pos, 16);
-                pos += len;
-                break;
-            }
-            break;
+    int arg_int;
+  char *arg_s;
+  int len=0;
+  int base=10;
+  size_t pos=0;
 
-        default:
-            out[pos] = fmt[i];
-            pos++;
-        }
-        i++;
-    }
-    out[pos] = '\0';
-    va_end(ap);
-    return pos;
+  while(*fmt){
+    switch(*fmt){
+    case '%':
+      ++fmt;
+      switch(*fmt){
+        case 'd': 
+          base = 10;
+          arg_int = va_arg(ap, int);
+          len = itoa(arg_int,base,out+pos);
+          pos+=len;
+          break;
+        case 'x':
+          base = 16;
+          arg_int = va_arg(ap, int);
+          len = itoa(arg_int,base,out+pos);
+          pos+=len;
+          break;
+        case 's': 
+          arg_s = va_arg(ap,char *);
+          strcat(out,arg_s);
+          len = strlen(arg_s);
+          pos+=len;
+          break;
+        case 'c':
+          arg_int = va_arg(ap,int);
+          out[pos] = arg_int+'0';
+          pos++;
+          break;
+        default: break;
+      }
+    break;
+    default: 
+
+    out[pos++]=*fmt;
+    break;
+  }
+  fmt++;
+  }
+  out[pos] = '\0';
+  va_end(ap);
+  return pos;
 }
 
-int itoa(int n, char *s, int base) {
-    int i, j, sign;
-    char buf[12];
-    if ((sign = n) < 0)
-        n = -n;
-    i = 0;
-    do {
-        buf[i] = n % base + '0';
-        i++;
-    } while ((n /= base) > 0);
-    if (sign < 0) {
-        s[i] = '-';
-        i++;
-    }
-
-    for (j = i - 1; j >= 0; j--) {
-        s[j] = (buf[i - 1 - j] <= '9' || buf[i - 1 - j] == '-')
-                   ? buf[i - 1 - j]
-                   : buf[i - 1 - j] - '9' + 'a' - 1;
-    }
-    s[i] = '\0';
-    return i;
-}
 
 int sprintf(char *out, const char *fmt, ...) {
     va_list ap;

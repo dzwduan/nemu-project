@@ -1,11 +1,24 @@
+
+/*
+i8253计时器初始化时会分别注册0x48处长度为8个字节的端口, 
+以及0xa1000048处长度为8字节的MMIO空间, 
+它们都会映射到RTC寄存器. CPU可以访问这两个寄存器来获得当前时间.
+*/
+
 #include <am.h>
 #include <nemu.h>
+#include <time.h>
+#include <sys/time.h>
+
+static uint32_t origin_time_high,origin_time_low;
 
 void __am_timer_init() {
+  origin_time_high = inl(RTC_ADDR+4);
+  origin_time_low = inl(RTC_ADDR);
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uptime->us = 0;
+  uptime->us = (inl(RTC_ADDR+4) - origin_time_high)*1000000 + (inl(RTC_ADDR) - origin_time_low + 500);
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

@@ -98,7 +98,7 @@ static inline def_rtl(sm, const rtlreg_t* addr, word_t offset, const rtlreg_t* s
 static inline def_rtl(lms, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
   word_t val = vaddr_read(*addr + offset, len);
   switch (len) {
-    case 4: *dest = (sword_t)(int32_t)val; return;
+    case 4: *dest = (sword_t)(int32_t)val; return; //高位补上0
     case 1: *dest = (sword_t)( int8_t)val; return;
     case 2: *dest = (sword_t)(int16_t)val; return;
     default: assert(0);

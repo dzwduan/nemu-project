@@ -205,7 +205,7 @@ again:
     IDEX(0x1d, I2a, sbb)
     //0x20 - 0x25 and
     IDEXW(0x20, G2E, and, 1)
-    IDEX(0x21, G2E, adc)
+    IDEX(0x21, G2E, and)
     IDEXW(0x22, E2G, and, 1)
     IDEX(0x23, E2G, and)
     IDEXW(0x24, I2a, and, 1)

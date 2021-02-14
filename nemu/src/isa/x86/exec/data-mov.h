@@ -183,11 +183,11 @@ static inline def_EHelper(cwtl)
   if (s->isa.is_operand_size_16)
   {
     // extend
-    cpu.ax = *(int8_t *)&cpu.al;
+    reg_w(R_AX) = *(int8_t *)(&cpu.al);
   }
   else
   {
-    cpu.eax = *(int16_t *)&cpu.ax;
+    cpu.eax = *(int16_t *)(&reg_w(R_AX));
   }
   print_asm(s->isa.is_operand_size_16 ? "cbtw" : "cwtl");
 }
@@ -208,8 +208,9 @@ static inline def_EHelper(movsx)
 //这里寄存器也是内存模拟，用完后要加上地址移动
 static inline def_EHelper(movsb)
 {
-  rtl_lr(s,s0,R_ESI,id_dest->width);
-  rtl_sr(s,R_EDI,s0,id_dest->width);
+  rtl_lms(s,s0,&cpu.esi,0,id_dest->width);
+  rtl_sm(s,&cpu.edi,0,s0,id_dest->width);
+
   *s1 = id_dest->width;
   rtl_add(s,&cpu.esi,&cpu.esi,s1);
   rtl_add(s,&cpu.edi,&cpu.edi,s1);

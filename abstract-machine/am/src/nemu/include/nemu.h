@@ -29,7 +29,7 @@
 # define AUDIO_ADDR   0xa1000200
 #endif
 
-#define FB_ADDR         0xa0000000
+#define FB_ADDR         0xa0000000 //映射显存的起始地址
 #define AUDIO_SBUF_ADDR 0xa0800000
 
 extern char _pmem_start;

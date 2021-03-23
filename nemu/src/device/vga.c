@@ -12,11 +12,13 @@
 # define SCREEN_W 400
 # define SCREEN_H 300
 #endif
+//screen size 400 * 300 * 32
 #define SCREEN_SIZE ((SCREEN_H * SCREEN_W) * sizeof(uint32_t))
 
 #include <device/map.h>
 #include <SDL2/SDL.h>
 
+//映射vmem的起始地址
 #define VMEM 0xa0000000
 
 #define VGACTL_PORT 0x100 // Note that this is not the standard
@@ -40,6 +42,12 @@ static inline void update_screen() {
 void vga_update_screen() {
   // TODO: call `update_screen()` when the sync register is non-zero,
   // then zero out the sync register
+  uint32_t sync = vgactl_port_base[1];
+  if(sync == 1)
+  {
+    update_screen();
+    vgactl_port_base[1] = 0;
+  }
 }
 
 void init_vga() {

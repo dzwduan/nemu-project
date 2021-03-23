@@ -3,22 +3,23 @@
 
 #include <cpu/decode.h>
 
-#define id_src1 (&s->src1)
+#define id_src1 (&s->src1) //id_src 是 Opereand类
 #define id_src2 (&s->src2)
 #define id_dest (&s->dest)
 
-#define dsrc1 (id_src1->preg)
+#define dsrc1 (id_src1->preg)  //寄存器缓存
 #define dsrc2 (id_src2->preg)
 #define ddest (id_dest->preg)
-#define s0    (&s->tmp_reg[0])
+#define s0    (&s->tmp_reg[0]) //临时寄存器
 #define s1    (&s->tmp_reg[1])
 #define s2    (&s->tmp_reg[2])
 #define t0    (&s->tmp_reg[3])
+#define t1    (&s->tmp_reg[4])
 
 extern const rtlreg_t rzero;
-#define rz (&rzero)
+#define rz (&rzero)  //永远为0的寄存器
 
-#define def_rtl(name, ...) void concat(rtl_, name)(DecodeExecState *s, __VA_ARGS__)
+#define def_rtl(name, ...) void concat(rtl_, name)(DecodeExecState *s, __VA_ARGS__) //传参的时候第一个默认s
 
 void rtl_exit(int state, vaddr_t halt_pc, uint32_t halt_ret);
 

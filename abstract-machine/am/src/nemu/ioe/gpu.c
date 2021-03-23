@@ -3,20 +3,38 @@
 
 #define SYNC_ADDR (VGACTL_ADDR + 4)
 
+int N = 32;
+
+
 void __am_gpu_init() {
+  // int i;
+  // int w = inw(VGACTL_ADDR + 2);
+  // int h = inw(VGACTL_ADDR);
+  // uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
+  // for (i = 0; i < w * h; i ++) fb[i] = i;
+  // outl(SYNC_ADDR, 1);
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
   *cfg = (AM_GPU_CONFIG_T) {
     .present = true, .has_accel = false,
-    .width = 0, .height = 0,
+    .width = inw(VGACTL_ADDR + 2), .height = inw(VGACTL_ADDR),
     .vmemsz = 0
   };
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
-  if (ctl->sync) {
-    outl(SYNC_ADDR, 1);
+ int W = inw(VGACTL_ADDR + 2);
+  int H = inw(VGACTL_ADDR);
+  outl(SYNC_ADDR, 1);
+  int x = ctl->x, y = ctl->y, w = ctl->w, h = ctl->h;
+  uint32_t *pixels = ctl->pixels; 
+  uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
+  for (int i = 0; i < h && y + i < H; i ++) {
+    for (int j = 0; j < w && x + j < W; j ++) {
+      fb[(i + y) * W + j + x] = *pixels;
+      pixels++;
+    }
   }
 }
 

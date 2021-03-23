@@ -14,7 +14,7 @@ typedef struct {
     word_t imm;
     sword_t simm;
   };
-  rtlreg_t *preg;
+  rtlreg_t *preg;//用于提高性能
   rtlreg_t val;
   char str[OP_STR_SIZE];
 } Operand;
@@ -23,11 +23,11 @@ typedef struct {
 typedef struct {
   uint32_t opcode;
   vaddr_t seq_pc;  // sequential pc 当前pc
-  uint32_t is_jmp;
+  uint32_t is_jmp; 
   vaddr_t jmp_pc;
   Operand src1, dest, src2; //源操作数和目的操作数
   int width;
-  rtlreg_t tmp_reg[4];
+  rtlreg_t tmp_reg[5];
   ISADecodeInfo isa; //isa相关信息
 } DecodeExecState;
 

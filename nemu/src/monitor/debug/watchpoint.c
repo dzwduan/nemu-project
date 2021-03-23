@@ -91,6 +91,7 @@ bool del_wp(int n){
     if(p->NO==n){
       free_wp(p);
       is_free = true;
+      break;
     }
     p=p->next;
   }

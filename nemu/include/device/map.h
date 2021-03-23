@@ -6,16 +6,18 @@
 typedef void(*io_callback_t)(uint32_t, int, bool);
 uint8_t* new_space(int size);
 
+//用于映射 支持 端口/内存映射
 typedef struct {
-  char *name;
+  char *name; 
   // we treat ioaddr_t as paddr_t here
-  paddr_t low;
+  paddr_t low; //映射起始地址
   paddr_t high;
-  uint8_t *space;
-  io_callback_t callback;
+  uint8_t *space;//映射的目标空间
+  io_callback_t callback; //回调函数
 } IOMap;
 
 static inline bool map_inside(IOMap *map, paddr_t addr) {
+  //printf("map_inside  : 0x%x   map-high : 0x%x   addr : 0x%x\n",map->low,map->high,addr);
   return (addr >= map->low && addr <= map->high);
 }
 

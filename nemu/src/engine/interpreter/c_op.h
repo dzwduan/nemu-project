@@ -3,7 +3,7 @@
 
 #include <common.h>
 
-#define c_shift_mask 0x1f
+#define c_shift_mask 0x1f   //5位
 
 #define c_add(a, b) ((a) + (b))
 #define c_sub(a, b) ((a) - (b))
@@ -26,11 +26,14 @@
 #define c_idiv_r(a, b)  ((sword_t)(a) % (sword_t)(b))
 
 static inline bool interpret_relop(uint32_t relop, const rtlreg_t src1, const rtlreg_t src2) {
+  //printf("relop is %d\n",relop);
+  // printf("NE src1 :%d ,src2 :%d\n",src1,src2); 
+  // printf("LE src1 :%d ,src2 :%d\n",src1,src2); 
   switch (relop) {
     case RELOP_FALSE: return false;
     case RELOP_TRUE: return true;
     case RELOP_EQ: return src1 == src2;
-    case RELOP_NE: return src1 != src2;
+    case RELOP_NE:return src1 != src2;
     case RELOP_LT: return (sword_t)src1 <  (sword_t)src2;
     case RELOP_LE: return (sword_t)src1 <= (sword_t)src2;
     case RELOP_GT: return (sword_t)src1 >  (sword_t)src2;

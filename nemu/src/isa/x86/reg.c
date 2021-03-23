@@ -44,7 +44,7 @@ void reg_test() {
 void isa_reg_display() {
   int i;
 	for(i = R_EAX;i <= R_EDI;i ++){
-		printf("%s:  0x%08x  %u\n",regsl[i],cpu.gpr[i]._32,cpu.gpr[i]._32);
+		printf("%s:  0x%08x  %u\n",regsl[i],reg_l(i),reg_l(i));
 	}
   printf("pc :  0x%08x \n",cpu.pc);
 }

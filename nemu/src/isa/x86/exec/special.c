@@ -2,9 +2,6 @@
 #include <monitor/monitor.h>
 #include <monitor/difftest.h>
 
-def_EHelper(nop) {
-  print_asm("nop");
-}
 
 def_EHelper(inv) {
   /* invalid opcode */
@@ -32,4 +29,8 @@ def_EHelper(nemu_trap) {
 
   print_asm("nemu trap");
   return;
+}
+
+def_EHelper(nop){
+  print_asm("nop");
 }

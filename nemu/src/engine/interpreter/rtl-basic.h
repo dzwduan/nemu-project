@@ -16,6 +16,7 @@
     *dest = concat(c_, name) (*src1, imm); \
   }
 
+//最终跳转进行数学运算
 #define def_rtl_compute_reg_imm(name) \
   def_rtl_compute_reg(name) \
   def_rtl_compute_imm(name) \
@@ -34,7 +35,7 @@ def_rtl_compute_reg_imm(sar)
 
 static inline def_rtl(setrelop, uint32_t relop, rtlreg_t *dest,
     const rtlreg_t *src1, const rtlreg_t *src2) {
-  *dest = interpret_relop(relop, *src1, *src2);
+  *dest = interpret_relop(relop, *src1, *src2);//选择操作数进行运算
 }
 
 static inline def_rtl(setrelopi, uint32_t relop, rtlreg_t *dest,
@@ -84,10 +85,12 @@ static inline def_rtl(idiv64_r, rtlreg_t* dest,
 
 // memory
 
+//guest内存访问,load mem
 static inline def_rtl(lm, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
   *dest = vaddr_read(*addr + offset, len);
 }
 
+//send mem
 static inline def_rtl(sm, const rtlreg_t* addr, word_t offset, const rtlreg_t* src1, int len) {
   vaddr_write(*addr + offset, *src1, len);
 }
@@ -95,13 +98,14 @@ static inline def_rtl(sm, const rtlreg_t* addr, word_t offset, const rtlreg_t* s
 static inline def_rtl(lms, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
   word_t val = vaddr_read(*addr + offset, len);
   switch (len) {
-    case 4: *dest = (sword_t)(int32_t)val; return;
+    case 4: *dest = (sword_t)(int32_t)val; return; //高位补上0
     case 1: *dest = (sword_t)( int8_t)val; return;
     case 2: *dest = (sword_t)(int16_t)val; return;
     default: assert(0);
   }
 }
 
+//host mem
 static inline def_rtl(host_lm, rtlreg_t* dest, const void *addr, int len) {
   switch (len) {
     case 4: *dest = *(uint32_t *)addr; return;
@@ -122,19 +126,24 @@ static inline def_rtl(host_sm, void *addr, const rtlreg_t *src1, int len) {
 
 // control
 
+//直接跳转
 static inline def_rtl(j, vaddr_t target) {
   s->jmp_pc = target;
   s->is_jmp = true;
 }
 
+//间接跳转
 static inline def_rtl(jr, rtlreg_t *target) {
   s->jmp_pc = *target;
   s->is_jmp = true;
 }
 
+//条件跳转
 static inline def_rtl(jrelop, uint32_t relop,
     const rtlreg_t *src1, const rtlreg_t *src2, vaddr_t target) {
+  //printf("relop :%d, src1 :%d, src2 :%d\n",relop,*src1,*src2);
   bool is_jmp = interpret_relop(relop, *src1, *src2);
+  //printf("is_jmp :%d\n",is_jmp);
   if (is_jmp) rtl_j(s, target);
 }
 #endif

@@ -3,7 +3,6 @@
 
 #include <common.h>
 
-
 // memory
 #define x86_IMAGE_START 0x100000
 #define x86_PMEM_BASE 0x0
@@ -17,9 +16,12 @@
  * For more details about the register encoding scheme, see i386 manual.
  */
 
-typedef struct {
-  union{
-    union {
+typedef struct
+{
+  union
+  {
+    union
+    {
       uint32_t _32;
       uint16_t _16;
       uint8_t _8[2];
@@ -32,77 +34,90 @@ typedef struct {
     // struct{
     //   uint16_t ax, cx, dx, bx, sp, bp, si, di;
     // };
-    struct {
-      union{
+    struct
+    {
+      union
+      {
         rtlreg_t eax;
-        union{
+        union
+        {
           uint16_t ax;
-          struct{
+          struct
+          {
             uint8_t ah;
             uint8_t al;
           };
         };
       };
 
-      union{
+      union
+      {
         rtlreg_t ecx;
-        union{
+        union
+        {
           uint16_t cx;
-          struct{
+          struct
+          {
             uint8_t ch;
             uint8_t cl;
           };
         };
       };
 
-
-      union{
+      union
+      {
         rtlreg_t edx;
-        union{
+        union
+        {
           uint16_t dx;
-          struct{
+          struct
+          {
             uint8_t dh;
             uint8_t dl;
           };
         };
       };
 
-
-      union{
+      union
+      {
         rtlreg_t ebx;
-        union{
+        union
+        {
           uint16_t bx;
-          struct{
+          struct
+          {
             uint8_t bh;
             uint8_t bl;
           };
         };
       };
 
-      union{
+      union
+      {
         rtlreg_t esp;
-				uint16_t sp;
+        uint16_t sp;
       };
 
-      union{
+      union
+      {
         rtlreg_t ebp;
-				uint16_t bp;
+        uint16_t bp;
       };
 
-      union{
+      union
+      {
         rtlreg_t esi;
-				uint16_t si;
+        uint16_t si;
       };
 
-      union{
+      union
+      {
         rtlreg_t edi;
-				uint16_t di;
+        uint16_t di;
       };
-
     };
-
   };
-  
+
   /* Do NOT change the order of the GPRs' definitions. */
 
   /* In NEMU, rtlreg_t is exactly uint32_t. This makes RTL instructions
@@ -110,33 +125,41 @@ typedef struct {
    */
   vaddr_t pc;
   //根据寄存器的位置初始化
-  union{
-    struct{
-      uint32_t CF:1;
-      uint32_t   :5;
-      uint32_t ZF:1;
-      uint32_t SF:1;
-      uint32_t   :1;
-      uint32_t IF:1;
-      uint32_t   :1;
-      uint32_t OF:1;
-      uint32_t :20;
+  union
+  {
+    struct
+    {
+      uint32_t CF : 1;
+      uint32_t : 5;
+      uint32_t ZF : 1;
+      uint32_t SF : 1;
+      uint32_t : 1;
+      uint32_t IF : 1;
+      uint32_t : 1;
+      uint32_t OF : 1;
+      uint32_t : 20;
     };
 
     uint32_t eflags_value;
-  }eflags;
+  } eflags;
 
+  rtlreg_t cs; //, ss, ds, es, fs, gs;
+  struct{
+    uint16_t size;
+    uint32_t base;
+  } idtr;
+  rtlreg_t cr0, cr2, cr3;
 } x86_CPU_state;
 
 // decode
-typedef struct {
+typedef struct
+{
   bool is_operand_size_16;
   uint8_t ext_opcode; //用于每组gp中定位
   const rtlreg_t *mbase;
   rtlreg_t mbr; //内存基地址
   word_t moff;
 } x86_ISADecodeInfo;
-
 
 //操作数宽度width对应的后缀字符(仅x86使用)
 #define suffix_char(width) ((width) == 4 ? 'l' : ((width) == 1 ? 'b' : ((width) == 2 ? 'w' : '?')))
